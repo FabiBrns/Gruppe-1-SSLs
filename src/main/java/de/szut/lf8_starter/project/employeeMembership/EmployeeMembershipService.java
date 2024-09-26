@@ -1,5 +1,6 @@
 package de.szut.lf8_starter.project.employeeMembership;
 
+import de.szut.lf8_starter.EmployeeWebServiceAccessPoint.Dtos.GetEmployeeDto;
 import de.szut.lf8_starter.EmployeeWebServiceAccessPoint.EmployeeReadService;
 import de.szut.lf8_starter.exceptionHandling.ResourceNotFoundException;
 import de.szut.lf8_starter.exceptionHandling.PlanningConflictException;
@@ -54,5 +55,13 @@ public class EmployeeMembershipService {
         }).toList();
         employeeMembershipRepository.saveAll(employeeMemberships);
         projectEntity.setEmployeeMemberships(employeeMemberships);
+    }
+
+    public List<ProjectEntity> getAllProjectsByEmployeeId(Long id) {
+        return employeeMembershipRepository.findAllByEmployeeId(id).stream().map(x -> x.getProject()).toList();
+    }
+
+    public GetEmployeeDto findById(Long id) {
+        return employeeReadService.GetRequest(id);
     }
 }

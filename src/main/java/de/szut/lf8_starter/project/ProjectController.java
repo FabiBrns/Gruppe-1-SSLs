@@ -26,12 +26,17 @@ public class ProjectController {
 
     @GetMapping
     public ResponseEntity<List<GetProjectDto>> getAll() {
-        return new ResponseEntity<>(projectService.getAll().stream().map(x-> mappingService.mapProjectEntityToGetProjectDto(x)).toList(), HttpStatus.CREATED);
+        return new ResponseEntity<>(projectService.getAll().stream().map(x-> mappingService.mapProjectEntityToGetProjectDto(x)).toList(), HttpStatus.OK);
     }
     @GetMapping("/{id}")
     public ResponseEntity<GetProjectDto> getById(@RequestParam Long id) {
-        return new ResponseEntity<>(mappingService.mapProjectEntityToGetProjectDto(projectService.getById(id)), HttpStatus.CREATED);
+        return new ResponseEntity<>(mappingService.mapProjectEntityToGetProjectDto(projectService.getById(id)), HttpStatus.OK);
     }
+
+    @GetMapping("employee/{id}")
+    public ResponseEntity<List<GetProjectDto>> getByEmployeeId(@RequestParam Long id) {
+        return new ResponseEntity<>(projectService.getAllByEmployeeId(id).stream().map(x-> mappingService.mapProjectEntityToGetProjectDto(x)).toList(), HttpStatus.CREATED);    }
+
     @PostMapping
     public ResponseEntity<GetProjectDto> create(@RequestBody @Valid AddProjectDto addProjectDto) throws Exception {
         var createdEntity = projectService.CreateProject(addProjectDto);

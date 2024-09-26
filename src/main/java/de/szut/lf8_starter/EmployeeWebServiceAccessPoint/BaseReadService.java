@@ -3,7 +3,9 @@ package de.szut.lf8_starter.EmployeeWebServiceAccessPoint;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public abstract class BaseReadService<TGet, TId> {
     private RestTemplate restTemplate;
@@ -35,10 +37,20 @@ public abstract class BaseReadService<TGet, TId> {
     }
 
     public TGet GetRequest(TId id) {
-        return restTemplate.exchange(getFullApiUrlWithId(id), HttpMethod.GET, accessTokenRetrieverService.getAccessTokenHttpRequestObject(), getDtoType).getBody();
+        try {
+            return restTemplate.exchange(getFullApiUrlWithId(id), HttpMethod.GET, accessTokenRetrieverService.getAccessTokenHttpRequestObject(), getDtoType).getBody();
+        }
+        catch (Exception e) {
+            return null;
+        }
     }
 
     public TGet[] GetAllRequest() {
-        return restTemplate.exchange(getFullApiUrl(), HttpMethod.GET, accessTokenRetrieverService.getAccessTokenHttpRequestObject(), getAllDtoType).getBody();
+        try {
+            return restTemplate.exchange(getFullApiUrl(), HttpMethod.GET, accessTokenRetrieverService.getAccessTokenHttpRequestObject(), getAllDtoType).getBody();
+        }
+        catch (Exception e) {
+            return null;
+        }
     }
 }
