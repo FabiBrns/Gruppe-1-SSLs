@@ -19,7 +19,6 @@ import java.util.List;
 @RequestMapping(value = "project")
 @PreAuthorize("hasAnyAuthority('user')")
 public class ProjectController {
-
     private ProjectService projectService;
     private ProjectMappingService mappingService;
 
@@ -40,7 +39,7 @@ public class ProjectController {
     }
 
     @PostMapping("{projectId}/qualifications")
-    public ResponseEntity<GetProjectDto> addEmployeeToProject(@RequestParam Long projectId,  @RequestBody @Valid AddQualificationConnectionDto addQualificationConnectionDto) {
+    public ResponseEntity<GetProjectDto> addQualificationToProject(@RequestParam Long projectId,  @RequestBody @Valid AddQualificationConnectionDto addQualificationConnectionDto) {
         return new ResponseEntity<>(mappingService.mapProjectEntityToGetProjectDto(projectService.AddQualificationToProject(projectId, addQualificationConnectionDto)), HttpStatus.CREATED);
     }
 
