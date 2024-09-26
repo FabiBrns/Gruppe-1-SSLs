@@ -51,4 +51,10 @@ public class ProjectService {
     public List<ProjectEntity> getAll() {
         return projectRepository.findAll();
     }
+
+    public ProjectEntity getById(Long id) {
+        var response = projectRepository.findById(id);
+        if (response.isEmpty()) throw new ResourceNotFoundException("no project found with id " + id);
+        return response.get();
+    }
 }

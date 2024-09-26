@@ -28,6 +28,10 @@ public class ProjectController {
     public ResponseEntity<List<GetProjectDto>> getAll() {
         return new ResponseEntity<>(projectService.getAll().stream().map(x-> mappingService.mapProjectEntityToGetProjectDto(x)).toList(), HttpStatus.CREATED);
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<GetProjectDto> getById(@RequestParam Long id) {
+        return new ResponseEntity<>(mappingService.mapProjectEntityToGetProjectDto(projectService.getById(id)), HttpStatus.CREATED);
+    }
     @PostMapping
     public ResponseEntity<GetProjectDto> create(@RequestBody @Valid AddProjectDto addProjectDto) throws Exception {
         var createdEntity = projectService.CreateProject(addProjectDto);
