@@ -3,6 +3,7 @@ package de.szut.lf8_starter.project;
 import de.szut.lf8_starter.exceptionHandling.DateConflictException;
 import de.szut.lf8_starter.exceptionHandling.ResourceNotFoundException;
 import de.szut.lf8_starter.project.dtos.AddProjectDto;
+import de.szut.lf8_starter.project.dtos.UpdateProjectDto;
 import de.szut.lf8_starter.project.employeeMembership.EmployeeMembershipService;
 import de.szut.lf8_starter.project.qualificationConnection.QualificationConnectionService;
 import org.apache.coyote.BadRequestException;
@@ -63,5 +64,20 @@ public class ProjectService {
     public List<ProjectEntity> getAllByEmployeeId(Long id) {
         if (employeeMembershipService.findById(id) == null) throw new ResourceNotFoundException("employee does not exist with id " + id);
         return employeeMembershipService.getAllProjectsByEmployeeId(id);
+    }
+
+    public ProjectEntity updateById(Long id, UpdateProjectDto updateProjectDto) {
+        var response = projectRepository.findById(id);
+        if (response.isEmpty()) throw new ResourceNotFoundException("project with id " + id + "does not exist");
+
+        var entity = response.get();
+
+        employeeMembershipService.EnsureUpdateDateOnProjectIsSafe(entity, updateProjectDto.getStartDate(), updateProjectDto.getEndDate());
+
+        entity.setName(updateProjectDto.getName());
+        entity.setStartDate(updateProjectDto.getStartDate());
+        entity.setEndDate(updateProjectDto.getEndDate());
+
+        return projectRepository.save(entity);
     }
 }

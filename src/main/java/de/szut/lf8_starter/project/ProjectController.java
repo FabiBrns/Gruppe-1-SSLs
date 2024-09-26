@@ -2,6 +2,7 @@ package de.szut.lf8_starter.project;
 
 import de.szut.lf8_starter.project.dtos.AddProjectDto;
 import de.szut.lf8_starter.project.dtos.GetProjectDto;
+import de.szut.lf8_starter.project.dtos.UpdateProjectDto;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,11 @@ public class ProjectController {
     @GetMapping("/{id}")
     public ResponseEntity<GetProjectDto> getById(@RequestParam Long id) {
         return new ResponseEntity<>(mappingService.mapProjectEntityToGetProjectDto(projectService.getById(id)), HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<GetProjectDto> updateById(@RequestParam Long id, @RequestBody @Valid UpdateProjectDto updateProjectDto) {
+        return new ResponseEntity<>(mappingService.mapProjectEntityToGetProjectDto(projectService.updateById(id, updateProjectDto)), HttpStatus.CREATED);
     }
 
     @GetMapping("employee/{id}")
