@@ -8,6 +8,8 @@ import de.szut.lf8_starter.project.qualificationConnection.QualificationConnecti
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -56,5 +58,10 @@ public class ProjectService {
         var response = projectRepository.findById(id);
         if (response.isEmpty()) throw new ResourceNotFoundException("no project found with id " + id);
         return response.get();
+    }
+
+    public List<ProjectEntity> getAllByEmployeeId(Long id) {
+        if (employeeMembershipService.findById(id) == null) throw new ResourceNotFoundException("employee does not exist with id " + id);
+        return employeeMembershipService.getAllProjectsByEmployeeId(id);
     }
 }
