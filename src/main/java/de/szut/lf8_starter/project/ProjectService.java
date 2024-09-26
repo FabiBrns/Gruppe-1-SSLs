@@ -6,6 +6,7 @@ import de.szut.lf8_starter.project.dtos.AddProjectDto;
 import de.szut.lf8_starter.project.dtos.UpdateProjectDto;
 import de.szut.lf8_starter.project.employeeMembership.Dtos.AddEmployeeMembershipDto;
 import de.szut.lf8_starter.project.employeeMembership.EmployeeMembershipService;
+import de.szut.lf8_starter.project.qualificationConnection.Dtos.AddQualificationConnectionDto;
 import de.szut.lf8_starter.project.qualificationConnection.QualificationConnectionService;
 import org.springframework.stereotype.Service;
 
@@ -70,7 +71,7 @@ public class ProjectService {
 
         var entity = response.get();
 
-        employeeMembershipService.EnsureUpdateDateOnProjectIsSafe(entity, updateProjectDto.getStartDate(), updateProjectDto.getEndDate());
+        employeeMembershipService.ensureUpdateDateOnProjectIsSafe(entity, updateProjectDto.getStartDate(), updateProjectDto.getEndDate());
 
         entity.setName(updateProjectDto.getName());
         entity.setStartDate(updateProjectDto.getStartDate());
@@ -80,12 +81,22 @@ public class ProjectService {
     }
 
     public ProjectEntity AddEmployeeToProject(Long projectId, AddEmployeeMembershipDto addDto) {
-        employeeMembershipService.EnsureAddMemberToProjectRequestIsSafe(projectId, addDto.getEmployeeId(), addDto.getQualificationId());
+        employeeMembershipService.ensureAddMemberToProjectRequestIsSafe(projectId, addDto.getEmployeeId(), addDto.getQualificationId());
         return employeeMembershipService.AddMemberToProject(projectId, addDto.getEmployeeId(), addDto.getQualificationId());
     }
 
     public void RemoveEmployeeFromProject(Long projectId, Long employeeId) {
-        employeeMembershipService.EnsureRemoveMemberFromProjectRequestIsSafe(projectId, employeeId);
+        employeeMembershipService.ensureRemoveMemberFromProjectRequestIsSafe(projectId, employeeId);
         employeeMembershipService.removeEmployeeFromProject(projectId, employeeId);
+    }
+
+    public ProjectEntity AddQualificationToProject(Long projectId, AddQualificationConnectionDto addQualificationConnectionDto) {
+        qualificationConnectionService.ensureAddQualificationToProjectRequestIsSafe(projectId, addQualificationConnectionDto.getQualificationId());
+        return qualificationConnectionService.addQualificationToProject(projectId, addQualificationConnectionDto.getQualificationId());
+    }
+
+    public void RemoveQualificationFromProject(Long projectId, Long qualificationId) {
+        qualificationConnectionService.ensureRemoveQualificationFromProjectRequestIsSafe(projectId, qualificationId);
+        qualificationConnectionService.removeQualificationFromProject(projectId, qualificationId);
     }
 }

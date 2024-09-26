@@ -5,6 +5,8 @@ import de.szut.lf8_starter.project.dtos.GetProjectDto;
 import de.szut.lf8_starter.project.dtos.UpdateProjectDto;
 import de.szut.lf8_starter.project.employeeMembership.Dtos.AddEmployeeMembershipDto;
 import de.szut.lf8_starter.project.employeeMembership.Dtos.RemoveEmployeeMembershipDto;
+import de.szut.lf8_starter.project.qualificationConnection.Dtos.AddQualificationConnectionDto;
+import de.szut.lf8_starter.project.qualificationConnection.Dtos.RemoveQualificationConnectionDto;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +19,6 @@ import java.util.List;
 @RequestMapping(value = "project")
 @PreAuthorize("hasAnyAuthority('user')")
 public class ProjectController {
-
     private ProjectService projectService;
     private ProjectMappingService mappingService;
 
@@ -27,14 +28,24 @@ public class ProjectController {
         this.mappingService = mappingService;
     }
 
-    @PostMapping("{projectId}/employee")
+    @PostMapping("{projectId}/employees")
     public ResponseEntity<GetProjectDto> addEmployeeToProject(@RequestParam Long projectId,  @RequestBody @Valid AddEmployeeMembershipDto addEmployeeMembershipDto) {
-        return new ResponseEntity<>(mappingService.mapProjectEntityToGetProjectDto(projectService.AddEmployeeToProject(projectId, addEmployeeMembershipDto)), HttpStatus.OK);
+        return new ResponseEntity<>(mappingService.mapProjectEntityToGetProjectDto(projectService.AddEmployeeToProject(projectId, addEmployeeMembershipDto)), HttpStatus.CREATED);
     }
 
-    @DeleteMapping("{projectId}/employee")
+    @DeleteMapping("{projectId}/employees")
     public void removeEmployeeToProject(@RequestParam Long projectId, @RequestBody @Valid RemoveEmployeeMembershipDto removeDto) {
         projectService.RemoveEmployeeFromProject(projectId, removeDto.getEmployeeId());
+    }
+
+    @PostMapping("{projectId}/qualifications")
+    public ResponseEntity<GetProjectDto> addQualificationToProject(@RequestParam Long projectId,  @RequestBody @Valid AddQualificationConnectionDto addQualificationConnectionDto) {
+        return new ResponseEntity<>(mappingService.mapProjectEntityToGetProjectDto(projectService.AddQualificationToProject(projectId, addQualificationConnectionDto)), HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("{projectId}/qualifications")
+    public void removeQualificationFromProject(@RequestParam Long projectId, @RequestBody @Valid RemoveQualificationConnectionDto removeDto) {
+        projectService.RemoveQualificationFromProject(projectId, removeDto.getQualificationId());
     }
 
     @GetMapping

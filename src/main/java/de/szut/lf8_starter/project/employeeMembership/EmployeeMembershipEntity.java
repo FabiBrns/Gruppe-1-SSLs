@@ -12,6 +12,6 @@ public class EmployeeMembershipEntity {
     private Long id;
     private Long employeeId;
     private Long qualificationId;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.DETACH)
     private ProjectEntity project;
 }

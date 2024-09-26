@@ -22,11 +22,13 @@ public class ProjectEntity {
 
     @OneToMany(cascade = CascadeType.ALL,
             fetch = FetchType.LAZY,
-            mappedBy = "project")
+            mappedBy = "project",
+            orphanRemoval = true)
     private List<EmployeeMembershipEntity> employeeMemberships;
 
     @OneToMany(cascade = CascadeType.ALL,
             fetch = FetchType.LAZY,
-            mappedBy = "project")
+            mappedBy = "project",
+            orphanRemoval = true)
     private List<QualificationConnectionEntity> qualificationConnections;
 }
