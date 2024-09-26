@@ -3,6 +3,8 @@ package de.szut.lf8_starter.project;
 import de.szut.lf8_starter.project.dtos.AddProjectDto;
 import de.szut.lf8_starter.project.dtos.GetProjectDto;
 import de.szut.lf8_starter.project.dtos.UpdateProjectDto;
+import de.szut.lf8_starter.project.employeeMembership.Dtos.AddEmployeeMembershipDto;
+import de.szut.lf8_starter.project.employeeMembership.Dtos.RemoveEmployeeMembershipDto;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,16 @@ public class ProjectController {
                              ProjectMappingService mappingService) {
         this.projectService = projectService;
         this.mappingService = mappingService;
+    }
+
+    @PostMapping("{projectId}/employee")
+    public ResponseEntity<GetProjectDto> addEmployeeToProject(@RequestParam Long projectId,  @RequestBody @Valid AddEmployeeMembershipDto addEmployeeMembershipDto) {
+        return new ResponseEntity<>(mappingService.mapProjectEntityToGetProjectDto(projectService.AddEmployeeToProject(projectId, addEmployeeMembershipDto)), HttpStatus.OK);
+    }
+
+    @DeleteMapping("{projectId}/employee")
+    public void removeEmployeeToProject(@RequestParam Long projectId, @RequestBody @Valid RemoveEmployeeMembershipDto removeDto) {
+        projectService.RemoveEmployeeFromProject(projectId, removeDto.getEmployeeId());
     }
 
     @GetMapping
