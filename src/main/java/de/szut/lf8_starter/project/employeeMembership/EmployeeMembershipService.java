@@ -26,7 +26,7 @@ public class EmployeeMembershipService {
         this.employeeMembershipRepository = employeeMembershipRepository;
     }
 
-    public void EnsureUpdateDateOnProjectIsSafe(ProjectEntity entity, Date startDate, Date endDate) {
+    public void ensureUpdateDateOnProjectIsSafe(ProjectEntity entity, Date startDate, Date endDate) {
         var existentEmployeeMembershipsIds = entity.getEmployeeMemberships();
         for (var membership :
                 existentEmployeeMembershipsIds) {
@@ -80,7 +80,7 @@ public class EmployeeMembershipService {
         return employeeReadService.getRequest(id);
     }
 
-    public void EnsureAddMemberToProjectRequestIsSafe(Long projectId, Long employeeId, Long qualificationId) {
+    public void ensureAddMemberToProjectRequestIsSafe(Long projectId, Long employeeId, Long qualificationId) {
         var projectResponse = projectRepository.findById(projectId);
         if (projectResponse.isEmpty()) throw new ResourceNotFoundException("project with id "+ projectId + " does not exist");
         var employeeResponse = employeeReadService.getRequest(employeeId);
@@ -112,14 +112,16 @@ public class EmployeeMembershipService {
         return project;
     }
 
-    public void EnsureRemoveMemberFromProjectRequestIsSafe(Long projectId, Long employeeId) {
+    public void ensureRemoveMemberFromProjectRequestIsSafe(Long projectId, Long employeeId) {
         var projectResponse = projectRepository.findById(projectId);
         if (projectResponse.isEmpty()) throw new ResourceNotFoundException("project with id "+ projectId + " does not exist");
-        if (projectRepository.findById(projectId).get().getEmployeeMemberships().stream().filter(x -> x.getEmployeeId() == employeeId).toArray().length != 1 ) throw new ResourceNotFoundException("no membership between project with id "+ projectId+ " and employee with id "+ employeeId+ " exists");
+        if (projectRepository.findById(projectId).get().getEmployeeMemberships().stream().filter(x -> Objects.equals(x.getEmployeeId(), employeeId)).toArray().length != 1 ) throw new ResourceNotFoundException("no membership between project with id "+ projectId+ " and employee with id "+ employeeId+ " exists");
     }
 
     public void removeEmployeeFromProject(Long projectId, Long employeeId) {
-        var membership = (EmployeeMembershipEntity) projectRepository.findById(projectId).get().getEmployeeMemberships().stream().filter(x -> x.getEmployeeId() == employeeId).toArray()[0];
-        employeeMembershipRepository.delete(membership);
+        var project = projectRepository.findById(projectId).get();
+        var membership = project.getEmployeeMemberships().stream().filter(x -> Objects.equals(x.getEmployeeId(), employeeId)).findFirst().get();
+        project.getEmployeeMemberships().remove(membership);
+        projectRepository.save(project);
     }
 }

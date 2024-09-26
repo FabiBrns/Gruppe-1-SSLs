@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(value = HttpStatus.CONFLICT)
-public class PlanningConflictException extends RuntimeException{
-    public PlanningConflictException(String message) {
+public class QualificationConflictException extends RuntimeException{
+    public QualificationConflictException(String message) {
         super(message);
     }
 }
