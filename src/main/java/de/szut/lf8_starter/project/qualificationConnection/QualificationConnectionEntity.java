@@ -6,11 +6,11 @@ import lombok.Data;
 
 @Data
 @Entity
-public class QualificationConnection {
+public class QualificationConnectionEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    private int qualificationId;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+    private Long qualificationId;
     @ManyToOne(cascade = CascadeType.ALL)
     private ProjectEntity project;
 }

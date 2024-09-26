@@ -1,2 +1,4 @@
-package de.szut.lf8_starter.project.dtos;public class GetAllProjects {
+package de.szut.lf8_starter.project.dtos;
+
+public class GetAllProjectsDto {
 }

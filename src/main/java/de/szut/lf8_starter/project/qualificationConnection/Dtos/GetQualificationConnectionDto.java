@@ -1,2 +1,8 @@
-package de.szut.lf8_starter.project.qualificationConnection.Dtos;public class GetQualificationConnectionDto {
+package de.szut.lf8_starter.project.qualificationConnection.Dtos;
+
+import lombok.Data;
+
+@Data
+public class GetQualificationConnectionDto {
+    private Long qualificationId;
 }

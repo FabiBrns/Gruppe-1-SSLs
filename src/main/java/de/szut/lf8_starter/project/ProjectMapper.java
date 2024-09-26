@@ -1,2 +1,4 @@
-package de.szut.lf8_starter.project;public class ProjectMapper {
+package de.szut.lf8_starter.project;
+
+public class ProjectMapper {
 }
