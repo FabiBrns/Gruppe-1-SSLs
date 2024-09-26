@@ -8,6 +8,8 @@ import de.szut.lf8_starter.project.qualificationConnection.QualificationConnecti
 import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ProjectService {
     private ProjectRepository projectRepository;
@@ -44,5 +46,9 @@ public class ProjectService {
     public void delete(Long id) {
         if (projectRepository.findById(id).isEmpty()) throw new ResourceNotFoundException("project with id " + id + " doesnt exist");
         projectRepository.deleteById(id);
+    }
+
+    public List<ProjectEntity> getAll() {
+        return projectRepository.findAll();
     }
 }
