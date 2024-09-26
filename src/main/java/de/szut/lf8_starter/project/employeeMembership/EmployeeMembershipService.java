@@ -1,16 +1,15 @@
 package de.szut.lf8_starter.project.employeeMembership;
 
 import de.szut.lf8_starter.EmployeeWebServiceAccessPoint.EmployeeReadService;
+import de.szut.lf8_starter.exceptionHandling.ResourceNotFoundException;
+import de.szut.lf8_starter.exceptionHandling.PlanningConflictException;
 import de.szut.lf8_starter.project.ProjectEntity;
 import de.szut.lf8_starter.project.ProjectRepository;
 import de.szut.lf8_starter.project.employeeMembership.Dtos.AddEmployeeMembershipDto;
 import de.szut.lf8_starter.project.qualificationConnection.Dtos.AddQualificationConnectionDto;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 public class EmployeeMembershipService {
@@ -26,24 +25,23 @@ public class EmployeeMembershipService {
         this.employeeMembershipRepository = employeeMembershipRepository;
     }
 
-    public boolean CanAddAllMembersToProject(ProjectEntity projectEntity, Set<AddEmployeeMembershipDto> employees, Set<AddQualificationConnectionDto> qualifications) {
+    public void EnsureAddAllMembersToProjectRequestIsSafe(ProjectEntity projectEntity, Set<AddEmployeeMembershipDto> employees, Set<AddQualificationConnectionDto> qualifications) {
         var allQualificationIds = new HashSet(qualifications.stream().map(AddQualificationConnectionDto::getQualificationId).toList());
         var allProjects = projectRepository.findAll();
         for (var employee:
              employees) {
-            if (!allQualificationIds.contains(employee.getQualificationId())) return false;
+            if (!allQualificationIds.contains(employee.getQualificationId())) throw new ResourceNotFoundException("project does not require qualification with id: " + employee.getQualificationId());
             if (!employeeReadService.GetRequest(employee.getEmployeeId()).getSkillSet().stream()
-                    .map(x -> x.getId()).toList().contains(employee.getQualificationId())) return false;
+                    .map(x -> x.getId()).toList().contains(employee.getQualificationId())) throw new ResourceNotFoundException("employee does not own qualification with id: " + employee.getQualificationId());
             for (var project :
                     allProjects) {
                 if (project.getEmployeeMemberships().stream().anyMatch(x -> x.getEmployeeId().equals(employee.getEmployeeId()))) {
                     if (project.getStartDate().before(projectEntity.getEndDate()) && projectEntity.getStartDate().before(project.getEndDate())) {
-                        return false;
+                        throw new PlanningConflictException("employee with id " + employee.getQualificationId() + " already tied to another project with id " + project.getId());
                     }
                 }
             }
         }
-        return true;
     }
 
     public void AddAllEmployeesToProject(ProjectEntity projectEntity, Set<AddEmployeeMembershipDto> employees, Set<AddQualificationConnectionDto> qualifications) {

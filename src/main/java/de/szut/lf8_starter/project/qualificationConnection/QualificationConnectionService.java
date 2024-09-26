@@ -1,13 +1,12 @@
 package de.szut.lf8_starter.project.qualificationConnection;
 
 import de.szut.lf8_starter.EmployeeWebServiceAccessPoint.QualificationReadService;
+import de.szut.lf8_starter.exceptionHandling.ResourceNotFoundException;
 import de.szut.lf8_starter.project.ProjectEntity;
 import de.szut.lf8_starter.project.qualificationConnection.Dtos.AddQualificationConnectionDto;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class QualificationConnectionService {
@@ -20,10 +19,14 @@ public class QualificationConnectionService {
         this.qualificationReadService = qualificationReadService;
     }
 
-    public Boolean CanAddAllConnectionsToProject(ProjectEntity projectEntity, Set<AddQualificationConnectionDto> qualifications){
+    public void EnsureAddAllQualificationConnectionsToProjectIsSafe(ProjectEntity projectEntity, Set<AddQualificationConnectionDto> qualifications){
         var allIds = new HashSet(qualifications.stream().map(AddQualificationConnectionDto::getQualificationId).toList());
         var allIdsOnServer = new HashSet(Arrays.stream(qualificationReadService.GetAllRequest()).map(x -> x.getId()).toList());
-        return allIdsOnServer.containsAll(allIds);
+
+        for (var id:
+                allIds) {
+            if (!allIdsOnServer.contains(id)) throw new ResourceNotFoundException("qualification with id " + id + "does not exist");
+        }
     }
 
     public void AddAllConnectionsToProject(ProjectEntity projectEntity, Set<AddQualificationConnectionDto> qualifications) {
