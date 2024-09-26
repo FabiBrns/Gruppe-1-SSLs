@@ -21,7 +21,7 @@ public class QualificationConnectionService {
 
     public void EnsureAddAllQualificationConnectionsToProjectIsSafe(ProjectEntity projectEntity, Set<AddQualificationConnectionDto> qualifications){
         var allIds = new HashSet(qualifications.stream().map(AddQualificationConnectionDto::getQualificationId).toList());
-        var allIdsOnServer = new HashSet(Arrays.stream(qualificationReadService.GetAllRequest()).map(x -> x.getId()).toList());
+        var allIdsOnServer = new HashSet(Arrays.stream(qualificationReadService.getAllRequest()).map(x -> x.getId()).toList());
 
         for (var id:
                 allIds) {

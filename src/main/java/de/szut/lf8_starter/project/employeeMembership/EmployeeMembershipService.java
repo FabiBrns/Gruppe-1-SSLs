@@ -6,7 +6,6 @@ import de.szut.lf8_starter.exceptionHandling.ResourceNotFoundException;
 import de.szut.lf8_starter.exceptionHandling.PlanningConflictException;
 import de.szut.lf8_starter.project.ProjectEntity;
 import de.szut.lf8_starter.project.ProjectRepository;
-import de.szut.lf8_starter.project.dtos.UpdateProjectDto;
 import de.szut.lf8_starter.project.employeeMembership.Dtos.AddEmployeeMembershipDto;
 import de.szut.lf8_starter.project.qualificationConnection.Dtos.AddQualificationConnectionDto;
 import org.springframework.stereotype.Service;
@@ -40,11 +39,6 @@ public class EmployeeMembershipService {
                 }
             }
         }
-
-        for (var employeeId:
-             existentEmployeeMembershipsIds) {
-
-        }
     }
 
     public void EnsureAddAllMembersToProjectRequestIsSafe(ProjectEntity projectEntity, Set<AddEmployeeMembershipDto> employees, Set<AddQualificationConnectionDto> qualifications) {
@@ -53,7 +47,7 @@ public class EmployeeMembershipService {
         for (var employee:
              employees) {
             if (!allQualificationIds.contains(employee.getQualificationId())) throw new ResourceNotFoundException("project does not require qualification with id: " + employee.getQualificationId());
-            if (!employeeReadService.GetRequest(employee.getEmployeeId()).getSkillSet().stream()
+            if (!employeeReadService.getRequest(employee.getEmployeeId()).getSkillSet().stream()
                     .map(x -> x.getId()).toList().contains(employee.getQualificationId())) throw new ResourceNotFoundException("employee does not own qualification with id: " + employee.getQualificationId());
             for (var project :
                     allProjects) {
@@ -83,6 +77,49 @@ public class EmployeeMembershipService {
     }
 
     public GetEmployeeDto findById(Long id) {
-        return employeeReadService.GetRequest(id);
+        return employeeReadService.getRequest(id);
+    }
+
+    public void EnsureAddMemberToProjectRequestIsSafe(Long projectId, Long employeeId, Long qualificationId) {
+        var projectResponse = projectRepository.findById(projectId);
+        if (projectResponse.isEmpty()) throw new ResourceNotFoundException("project with id "+ projectId + " does not exist");
+        var employeeResponse = employeeReadService.getRequest(employeeId);
+        if (employeeResponse == null) throw new ResourceNotFoundException("employee with id "+ employeeId + " does not exist");
+
+        var allProjects = projectRepository.findAll();
+        if (!projectResponse.get().getQualificationConnections().stream().map(x-> x.getQualificationId()).toList().contains(qualificationId)) throw new ResourceNotFoundException("project does not require qualification with id: " + qualificationId);
+        if (!employeeResponse.getSkillSet().stream()
+                .map(x -> x.getId()).toList().contains(qualificationId)) throw new ResourceNotFoundException("employee does not own qualification with id: " + qualificationId);
+        for (var project :
+                allProjects) {
+            if (project.getEmployeeMemberships().stream().anyMatch(x -> x.getEmployeeId().equals(employeeId))) {
+                if (project.getStartDate().before(projectResponse.get().getEndDate()) && projectResponse.get().getStartDate().before(project.getEndDate())) {
+                    throw new PlanningConflictException("employee with id " + employeeId + " already tied to another project with id " + project.getId());
+                }
+            }
+        }
+    }
+
+    public ProjectEntity AddMemberToProject(Long projectId, Long employeeId, Long qualificationId) {
+        var project = projectRepository.findById(projectId).get();
+        var entity = new EmployeeMembershipEntity();
+        entity.setEmployeeId(employeeId);
+        entity.setQualificationId(qualificationId);
+        entity.setProject(project);
+
+        employeeMembershipRepository.save(entity);
+        project.getEmployeeMemberships().add(entity);
+        return project;
+    }
+
+    public void EnsureRemoveMemberFromProjectRequestIsSafe(Long projectId, Long employeeId) {
+        var projectResponse = projectRepository.findById(projectId);
+        if (projectResponse.isEmpty()) throw new ResourceNotFoundException("project with id "+ projectId + " does not exist");
+        if (projectRepository.findById(projectId).get().getEmployeeMemberships().stream().filter(x -> x.getEmployeeId() == employeeId).toArray().length != 1 ) throw new ResourceNotFoundException("no membership between project with id "+ projectId+ " and employee with id "+ employeeId+ " exists");
+    }
+
+    public void removeEmployeeFromProject(Long projectId, Long employeeId) {
+        var membership = (EmployeeMembershipEntity) projectRepository.findById(projectId).get().getEmployeeMemberships().stream().filter(x -> x.getEmployeeId() == employeeId).toArray()[0];
+        employeeMembershipRepository.delete(membership);
     }
 }

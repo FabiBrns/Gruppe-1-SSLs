@@ -4,13 +4,11 @@ import de.szut.lf8_starter.exceptionHandling.DateConflictException;
 import de.szut.lf8_starter.exceptionHandling.ResourceNotFoundException;
 import de.szut.lf8_starter.project.dtos.AddProjectDto;
 import de.szut.lf8_starter.project.dtos.UpdateProjectDto;
+import de.szut.lf8_starter.project.employeeMembership.Dtos.AddEmployeeMembershipDto;
 import de.szut.lf8_starter.project.employeeMembership.EmployeeMembershipService;
 import de.szut.lf8_starter.project.qualificationConnection.QualificationConnectionService;
-import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -79,5 +77,15 @@ public class ProjectService {
         entity.setEndDate(updateProjectDto.getEndDate());
 
         return projectRepository.save(entity);
+    }
+
+    public ProjectEntity AddEmployeeToProject(Long projectId, AddEmployeeMembershipDto addDto) {
+        employeeMembershipService.EnsureAddMemberToProjectRequestIsSafe(projectId, addDto.getEmployeeId(), addDto.getQualificationId());
+        return employeeMembershipService.AddMemberToProject(projectId, addDto.getEmployeeId(), addDto.getQualificationId());
+    }
+
+    public void RemoveEmployeeFromProject(Long projectId, Long employeeId) {
+        employeeMembershipService.EnsureRemoveMemberFromProjectRequestIsSafe(projectId, employeeId);
+        employeeMembershipService.removeEmployeeFromProject(projectId, employeeId);
     }
 }
