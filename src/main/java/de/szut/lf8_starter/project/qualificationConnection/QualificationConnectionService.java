@@ -1,11 +1,10 @@
 package de.szut.lf8_starter.project.qualificationConnection;
 
-import de.szut.lf8_starter.EmployeeWebServiceAccessPoint.QualificationReadService;
+import de.szut.lf8_starter.employeeWebServiceAccessPoint.QualificationReadService;
 import de.szut.lf8_starter.exceptionHandling.QualificationConflictException;
 import de.szut.lf8_starter.exceptionHandling.ResourceNotFoundException;
 import de.szut.lf8_starter.project.ProjectEntity;
 import de.szut.lf8_starter.project.ProjectRepository;
-import de.szut.lf8_starter.project.employeeMembership.EmployeeMembershipEntity;
 import de.szut.lf8_starter.project.qualificationConnection.Dtos.AddQualificationConnectionDto;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +24,7 @@ public class QualificationConnectionService {
         this.qualificationReadService = qualificationReadService;
     }
 
-    public void EnsureAddAllQualificationConnectionsToProjectIsSafe(ProjectEntity projectEntity, Set<AddQualificationConnectionDto> qualifications){
+    public void ensureAddAllQualificationConnectionsToProjectIsSafe(ProjectEntity projectEntity, Set<AddQualificationConnectionDto> qualifications){
         var allIds = new HashSet(qualifications.stream().map(AddQualificationConnectionDto::getQualificationId).toList());
         var allIdsOnServer = new HashSet(Arrays.stream(qualificationReadService.getAllRequest()).map(x -> x.getId()).toList());
 
@@ -35,7 +34,7 @@ public class QualificationConnectionService {
         }
     }
 
-    public void AddAllConnectionsToProject(ProjectEntity projectEntity, Set<AddQualificationConnectionDto> qualifications) {
+    public void addAllConnectionsToProject(ProjectEntity projectEntity, Set<AddQualificationConnectionDto> qualifications) {
         var qualificationConnections = new HashSet<>(qualifications.stream().map(AddQualificationConnectionDto::getQualificationId).toList()).stream().map(x -> {
             var entity = new QualificationConnectionEntity();
             entity.setQualificationId(x);

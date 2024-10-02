@@ -1,7 +1,6 @@
-package de.szut.lf8_starter.EmployeeWebServiceAccessPoint;
+package de.szut.lf8_starter.employeeWebServiceAccessPoint;
 
-import com.sun.net.httpserver.Headers;
-import de.szut.lf8_starter.EmployeeWebServiceAccessPoint.Dtos.GetAccessTokenDto;
+import de.szut.lf8_starter.employeeWebServiceAccessPoint.Dtos.GetAccessTokenDto;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -22,8 +21,8 @@ import java.util.List;
 
 @Service
 public class AccessTokenRetrieverService {
-    private String accessToken;
-    private LocalDateTime expired_on;
+    private static String accessToken;
+    private static LocalDateTime expired_on;
     private RestTemplate restTemplate;
     private String username = "user";
     private String password = "test";

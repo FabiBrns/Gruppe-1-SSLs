@@ -1,10 +1,9 @@
-package de.szut.lf8_starter.EmployeeWebServiceAccessPoint.Dtos;
+package de.szut.lf8_starter.employeeWebServiceAccessPoint.Dtos;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import java.util.List;
-import java.util.Set;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data

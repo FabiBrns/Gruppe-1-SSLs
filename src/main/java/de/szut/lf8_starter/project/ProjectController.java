@@ -67,8 +67,8 @@ public class ProjectController {
         return new ResponseEntity<>(projectService.getAllByEmployeeId(id).stream().map(x-> mappingService.mapProjectEntityToGetProjectDto(x)).toList(), HttpStatus.CREATED);    }
 
     @PostMapping
-    public ResponseEntity<GetProjectDto> create(@RequestBody @Valid AddProjectDto addProjectDto) throws Exception {
-        var createdEntity = projectService.CreateProject(addProjectDto);
+    public ResponseEntity<GetProjectDto> create(@RequestBody @Valid AddProjectDto addProjectDto) {
+        var createdEntity = projectService.createProject(addProjectDto);
         return new ResponseEntity<>(mappingService.mapProjectEntityToGetProjectDto(createdEntity), HttpStatus.CREATED);
     }
 

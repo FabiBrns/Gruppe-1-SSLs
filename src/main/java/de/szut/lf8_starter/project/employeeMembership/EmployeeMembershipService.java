@@ -1,7 +1,7 @@
 package de.szut.lf8_starter.project.employeeMembership;
 
-import de.szut.lf8_starter.EmployeeWebServiceAccessPoint.Dtos.GetEmployeeDto;
-import de.szut.lf8_starter.EmployeeWebServiceAccessPoint.EmployeeReadService;
+import de.szut.lf8_starter.employeeWebServiceAccessPoint.Dtos.GetEmployeeDto;
+import de.szut.lf8_starter.employeeWebServiceAccessPoint.EmployeeReadService;
 import de.szut.lf8_starter.exceptionHandling.ResourceNotFoundException;
 import de.szut.lf8_starter.exceptionHandling.PlanningConflictException;
 import de.szut.lf8_starter.project.ProjectEntity;
@@ -33,15 +33,14 @@ public class EmployeeMembershipService {
             var allMembershipsForEmployee = employeeMembershipRepository.findAllByEmployeeId(membership.getEmployeeId()).stream().filter(x -> x.getProject().getId() != entity.getId()).toList();
             for (var membershipToCheckForConflictsWith :
                     allMembershipsForEmployee) {
-
-                if (membershipToCheckForConflictsWith.getProject().getStartDate().before(startDate) && startDate.before(membershipToCheckForConflictsWith.getProject().getEndDate())) {
+                if (membershipToCheckForConflictsWith.getProject().getStartDate().before(startDate) && endDate.before(membershipToCheckForConflictsWith.getProject().getEndDate())) {
                     throw new PlanningConflictException("employee with id " + membershipToCheckForConflictsWith.getEmployeeId() + " already tied to another project with id " + membershipToCheckForConflictsWith.getProject().getId());
                 }
             }
         }
     }
 
-    public void EnsureAddAllMembersToProjectRequestIsSafe(ProjectEntity projectEntity, Set<AddEmployeeMembershipDto> employees, Set<AddQualificationConnectionDto> qualifications) {
+    public void ensureAddAllMembersToProjectRequestIsSafe(ProjectEntity projectEntity, Set<AddEmployeeMembershipDto> employees, Set<AddQualificationConnectionDto> qualifications) {
         var allQualificationIds = new HashSet(qualifications.stream().map(AddQualificationConnectionDto::getQualificationId).toList());
         var allProjects = projectRepository.findAll();
         for (var employee:
@@ -60,7 +59,7 @@ public class EmployeeMembershipService {
         }
     }
 
-    public void AddAllEmployeesToProject(ProjectEntity projectEntity, Set<AddEmployeeMembershipDto> employees, Set<AddQualificationConnectionDto> qualifications) {
+    public void addAllEmployeesToProject(ProjectEntity projectEntity, Set<AddEmployeeMembershipDto> employees, Set<AddQualificationConnectionDto> qualifications) {
         var employeeMemberships = employees.stream().map(x -> {
             var em = new EmployeeMembershipEntity();
             em.setEmployeeId(x.getEmployeeId());
@@ -100,7 +99,7 @@ public class EmployeeMembershipService {
         }
     }
 
-    public ProjectEntity AddMemberToProject(Long projectId, Long employeeId, Long qualificationId) {
+    public ProjectEntity addMemberToProject(Long projectId, Long employeeId, Long qualificationId) {
         var project = projectRepository.findById(projectId).get();
         var entity = new EmployeeMembershipEntity();
         entity.setEmployeeId(employeeId);

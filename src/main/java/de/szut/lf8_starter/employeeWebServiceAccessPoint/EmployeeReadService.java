@@ -1,6 +1,6 @@
-package de.szut.lf8_starter.EmployeeWebServiceAccessPoint;
+package de.szut.lf8_starter.employeeWebServiceAccessPoint;
 
-import de.szut.lf8_starter.EmployeeWebServiceAccessPoint.Dtos.GetEmployeeDto;
+import de.szut.lf8_starter.employeeWebServiceAccessPoint.Dtos.GetEmployeeDto;
 import org.springframework.stereotype.Service;
 
 @Service

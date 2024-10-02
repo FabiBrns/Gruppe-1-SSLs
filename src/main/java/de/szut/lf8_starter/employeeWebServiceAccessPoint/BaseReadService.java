@@ -1,4 +1,4 @@
-package de.szut.lf8_starter.EmployeeWebServiceAccessPoint;
+package de.szut.lf8_starter.employeeWebServiceAccessPoint;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestTemplate;

@@ -26,7 +26,7 @@ public class ProjectService {
         this.qualificationConnectionService = qualificationConnectionService;
     }
 
-    public ProjectEntity CreateProject(AddProjectDto addProjectDto) {
+    public ProjectEntity createProject(AddProjectDto addProjectDto) {
         ProjectEntity projectEntity = new ProjectEntity();
         projectEntity.setName(addProjectDto.getName());
 
@@ -34,13 +34,13 @@ public class ProjectService {
         projectEntity.setStartDate(addProjectDto.getStartDate());
         projectEntity.setEndDate(addProjectDto.getEndDate());
 
-        qualificationConnectionService.EnsureAddAllQualificationConnectionsToProjectIsSafe(projectEntity, addProjectDto.getQualifications());
-        employeeMembershipService.EnsureAddAllMembersToProjectRequestIsSafe(projectEntity, addProjectDto.getEmployees(), addProjectDto.getQualifications());
+        qualificationConnectionService.ensureAddAllQualificationConnectionsToProjectIsSafe(projectEntity, addProjectDto.getQualifications());
+        employeeMembershipService.ensureAddAllMembersToProjectRequestIsSafe(projectEntity, addProjectDto.getEmployees(), addProjectDto.getQualifications());
 
         projectEntity = projectRepository.save(projectEntity);
 
-        qualificationConnectionService.AddAllConnectionsToProject(projectEntity, addProjectDto.getQualifications());
-        employeeMembershipService.AddAllEmployeesToProject(projectEntity, addProjectDto.getEmployees(), addProjectDto.getQualifications());
+        qualificationConnectionService.addAllConnectionsToProject(projectEntity, addProjectDto.getQualifications());
+        employeeMembershipService.addAllEmployeesToProject(projectEntity, addProjectDto.getEmployees(), addProjectDto.getQualifications());
 
         return projectEntity;
     }
@@ -82,7 +82,7 @@ public class ProjectService {
 
     public ProjectEntity AddEmployeeToProject(Long projectId, AddEmployeeMembershipDto addDto) {
         employeeMembershipService.ensureAddMemberToProjectRequestIsSafe(projectId, addDto.getEmployeeId(), addDto.getQualificationId());
-        return employeeMembershipService.AddMemberToProject(projectId, addDto.getEmployeeId(), addDto.getQualificationId());
+        return employeeMembershipService.addMemberToProject(projectId, addDto.getEmployeeId(), addDto.getQualificationId());
     }
 
     public void RemoveEmployeeFromProject(Long projectId, Long employeeId) {
