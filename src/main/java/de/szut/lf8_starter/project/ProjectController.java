@@ -19,8 +19,8 @@ import java.util.List;
 @RequestMapping(value = "project")
 @PreAuthorize("hasAnyAuthority('user')")
 public class ProjectController {
-    private ProjectService projectService;
-    private ProjectMappingService mappingService;
+    private final ProjectService projectService;
+    private final ProjectMappingService mappingService;
 
     public ProjectController(ProjectService projectService,
                              ProjectMappingService mappingService) {
@@ -68,8 +68,7 @@ public class ProjectController {
 
     @PostMapping
     public ResponseEntity<GetProjectDto> create(@RequestBody @Valid AddProjectDto addProjectDto) {
-        var createdEntity = projectService.createProject(addProjectDto);
-        return new ResponseEntity<>(mappingService.mapProjectEntityToGetProjectDto(createdEntity), HttpStatus.CREATED);
+        return new ResponseEntity<>(mappingService.mapProjectEntityToGetProjectDto(projectService.createProject(addProjectDto)), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")

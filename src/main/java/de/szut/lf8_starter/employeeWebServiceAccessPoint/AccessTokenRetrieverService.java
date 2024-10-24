@@ -23,10 +23,10 @@ import java.util.List;
 public class AccessTokenRetrieverService {
     private static String accessToken;
     private static LocalDateTime expired_on;
-    private RestTemplate restTemplate;
-    private String username = "user";
-    private String password = "test";
-    private String url = "https://keycloak.szut.dev/auth/realms/szut/protocol/openid-connect/token";
+    private final RestTemplate restTemplate;
+    private final String username = "user";
+    private final String password = "test";
+    private final String url = "https://keycloak.szut.dev/auth/realms/szut/protocol/openid-connect/token";
 
     public AccessTokenRetrieverService() {
         this.restTemplate = new RestTemplate();
@@ -49,7 +49,8 @@ public class AccessTokenRetrieverService {
         }
         return accessToken;
     }
-    public HttpEntity<MultiValueMap<String, String>> getAccessTokenHttpRequestObject(){
+
+    public HttpEntity<MultiValueMap<String, String>> getAccessTokenHttpRequestObject() {
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + getToken());
@@ -57,7 +58,7 @@ public class AccessTokenRetrieverService {
     }
 
     private GetAccessTokenDto retrieveTokenDto() {
-        MultiValueMap<String, String> map= new LinkedMultiValueMap<>();
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         map.add("grant_type", "password");
@@ -67,7 +68,9 @@ public class AccessTokenRetrieverService {
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
         var response = restTemplate.exchange(url, HttpMethod.POST, request, GetAccessTokenDto.class);
-        if (response.hasBody()) return response.getBody();
+        if (response.hasBody()) {
+            return response.getBody();
+        }
         return null;
     }
 }

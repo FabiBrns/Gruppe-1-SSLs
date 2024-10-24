@@ -14,9 +14,9 @@ import java.util.List;
 
 @Service
 public class ProjectService {
-    private ProjectRepository projectRepository;
-    private EmployeeMembershipService employeeMembershipService;
-    private QualificationConnectionService qualificationConnectionService;
+    private final ProjectRepository projectRepository;
+    private final EmployeeMembershipService employeeMembershipService;
+    private final QualificationConnectionService qualificationConnectionService;
 
     public ProjectService(ProjectRepository projectRepository,
                           EmployeeMembershipService employeeMembershipService,
@@ -30,7 +30,8 @@ public class ProjectService {
         ProjectEntity projectEntity = new ProjectEntity();
         projectEntity.setName(addProjectDto.getName());
 
-        if (addProjectDto.getEndDate().before(addProjectDto.getStartDate())) throw new DateConflictException("end date shouldn't be before start date");
+        if (addProjectDto.getEndDate().before(addProjectDto.getStartDate()))
+            throw new DateConflictException("end date shouldn't be before start date");
         projectEntity.setStartDate(addProjectDto.getStartDate());
         projectEntity.setEndDate(addProjectDto.getEndDate());
 
@@ -46,7 +47,8 @@ public class ProjectService {
     }
 
     public void delete(Long id) {
-        if (projectRepository.findById(id).isEmpty()) throw new ResourceNotFoundException("project with id " + id + " doesnt exist");
+        if (projectRepository.findById(id).isEmpty())
+            throw new ResourceNotFoundException("project with id " + id + " doesnt exist");
         projectRepository.deleteById(id);
     }
 
@@ -61,7 +63,8 @@ public class ProjectService {
     }
 
     public List<ProjectEntity> getAllByEmployeeId(Long id) {
-        if (employeeMembershipService.findById(id) == null) throw new ResourceNotFoundException("employee does not exist with id " + id);
+        if (employeeMembershipService.findById(id) == null)
+            throw new ResourceNotFoundException("employee does not exist with id " + id);
         return employeeMembershipService.getAllProjectsByEmployeeId(id);
     }
 

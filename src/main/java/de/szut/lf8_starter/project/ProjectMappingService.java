@@ -16,8 +16,10 @@ public class ProjectMappingService {
         var dto = new GetProjectDto();
         dto.setId(entity.getId());
         dto.setName(entity.getName());
-        dto.setEmployees(entity.getEmployeeMemberships().stream().map(this::mapEmployeeMembershipEntityToGetEmployeeMembershipDto).collect(Collectors.toSet()));
-        dto.setQualifications(entity.getQualificationConnections().stream().map(this::mapQualificationConnectionEntityToGetQualificationConnectionDto).collect(Collectors.toSet()));
+        dto.setEmployees(entity.getEmployeeMemberships().stream().map(this::mapEmployeeMembershipEntityToGetEmployeeMembershipDto)
+                .collect(Collectors.toSet()));
+        dto.setQualifications(entity.getQualificationConnections().stream().map(this::mapQualificationConnectionEntityToGetQualificationConnectionDto)
+                .collect(Collectors.toSet()));
         dto.setEndDate(entity.getEndDate());
         dto.setStartDate(entity.getStartDate());
         return dto;
