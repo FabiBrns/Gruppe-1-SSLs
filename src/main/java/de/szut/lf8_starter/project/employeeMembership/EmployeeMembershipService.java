@@ -3,7 +3,9 @@ package de.szut.lf8_starter.project.employeeMembership;
 import de.szut.lf8_starter.employeeWebServiceAccessPoint.Dtos.GetEmployeeDto;
 import de.szut.lf8_starter.employeeWebServiceAccessPoint.Dtos.GetQualificationDto;
 import de.szut.lf8_starter.employeeWebServiceAccessPoint.EmployeeReadService;
+import de.szut.lf8_starter.exceptionHandling.EmployeeConflictException;
 import de.szut.lf8_starter.exceptionHandling.PlanningConflictException;
+import de.szut.lf8_starter.exceptionHandling.QualificationConflictException;
 import de.szut.lf8_starter.exceptionHandling.ResourceNotFoundException;
 import de.szut.lf8_starter.project.ProjectEntity;
 import de.szut.lf8_starter.project.ProjectRepository;
@@ -51,15 +53,15 @@ public class EmployeeMembershipService {
 
         for (var employee : employees) {
             if (!allQualificationIds.contains(employee.getQualificationId())) {
-                throw new ResourceNotFoundException("project does not require qualification with id: " + employee.getQualificationId());
+                throw new QualificationConflictException("project does not require qualification with id: " + employee.getQualificationId());
             }
             if (employees.stream().filter(x -> x.getEmployeeId().equals(employee.getEmployeeId())).count() > 1) {
-                throw new ResourceNotFoundException("employee with id " + employee.getEmployeeId() + " present more than once in the list of employees");
+                throw new EmployeeConflictException("employee with id " + employee.getEmployeeId() + " present more than once in the list of employees");
             }
             if (!employeeReadService.getRequest(employee.getEmployeeId()).getSkillSet().stream().map(GetQualificationDto::getId)
                     .toList()
                     .contains(employee.getQualificationId())) {
-                throw new ResourceNotFoundException("employee does not own qualification with id: " + employee.getQualificationId());
+                throw new EmployeeConflictException("employee does not own qualification with id: " + employee.getQualificationId());
             }
             for (var project : allProjects) {
                 if (project.getEmployeeMemberships().stream().anyMatch(x -> x.getEmployeeId().equals(employee.getEmployeeId()))) {
@@ -75,7 +77,7 @@ public class EmployeeMembershipService {
         for (var qualification : qualifications) {
             if (!existentQualificationCount.containsKey(qualification.getQualificationId())) continue;
             if (qualification.getNeededEmployeeCount() < existentQualificationCount.get(qualification.getQualificationId())) {
-                throw new ResourceNotFoundException("bing bong");
+                throw new QualificationConflictException("Too many employees are assigned to qualification with id " + qualification.getQualificationId());
             }
         }
     }
@@ -113,16 +115,16 @@ public class EmployeeMembershipService {
         if (!projectResponse.get().getQualificationConnections().stream().map(QualificationConnectionEntity::getQualificationId)
                 .toList()
                 .contains(qualificationId)) {
-            throw new ResourceNotFoundException("project does not require qualification with id: " + qualificationId);
+            throw new QualificationConflictException("project does not require qualification with id: " + qualificationId);
         }
         if (!employeeResponse.getSkillSet().stream()
                 .map(GetQualificationDto::getId)
                 .toList()
                 .contains(qualificationId)) {
-            throw new ResourceNotFoundException("employee does not own qualification with id: " + qualificationId);
+            throw new EmployeeConflictException("employee does not own qualification with id: " + qualificationId);
         }
         if (projectResponse.get().getEmployeeMemberships().stream().anyMatch(x -> x.getEmployeeId().equals(employeeId))) {
-            throw new ResourceNotFoundException("employee already in project");
+            throw new EmployeeConflictException("employee already in project");
         }
         // we are deeply sorry...
         if (projectResponse.get().getEmployeeMemberships().stream().filter(x -> x.getQualificationId().equals(qualificationId))
@@ -135,7 +137,7 @@ public class EmployeeMembershipService {
                     .get()
                     .getNeededEmployeesWithQualificationCount()
         ) {
-            throw new ResourceNotFoundException("ugly ahhh if (membership service)");
+        throw new QualificationConflictException("too many employees with specific qualification added");
         }
         for (var project : allProjects) {
             if (project.getEmployeeMemberships().stream().anyMatch(x -> x.getEmployeeId().equals(employeeId))) {

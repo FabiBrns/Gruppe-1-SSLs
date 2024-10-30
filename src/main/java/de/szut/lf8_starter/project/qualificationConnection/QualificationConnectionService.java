@@ -31,12 +31,12 @@ public class QualificationConnectionService {
         var allIdsOnServer = new HashSet<>(Arrays.stream(qualificationReadService.getAllRequest()).map(GetQualificationDto::getId).toList());
 
         if (allIds.size() != qualifications.size()) {
-            throw new ResourceNotFoundException("doubled Id input");
+            throw new QualificationConflictException("One of the qualifications exists more than once");
         }
 
         for (var id : allIds) {
             if (!allIdsOnServer.contains(id))
-                throw new ResourceNotFoundException("qualification with id " + id + "does not exist");
+                throw new ResourceNotFoundException("Qualification with id " + id + "does not exist");
         }
     }
 
