@@ -8,6 +8,7 @@ class Lf8StarterApplicationTests {
 
     @Test
     void contextLoads() {
+
     }
 
 }

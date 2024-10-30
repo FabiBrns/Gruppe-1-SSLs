@@ -5,7 +5,7 @@ import de.szut.lf8_starter.project.dtos.GetProjectDto;
 import de.szut.lf8_starter.project.dtos.UpdateProjectDto;
 import de.szut.lf8_starter.project.employeeMembership.Dtos.AddEmployeeMembershipDto;
 import de.szut.lf8_starter.project.employeeMembership.Dtos.RemoveEmployeeMembershipDto;
-import de.szut.lf8_starter.project.qualificationConnection.Dtos.AddQualificationConnectionDto;
+import de.szut.lf8_starter.project.qualificationConnection.Dtos.AddQualificationConnectionIndividualDto;
 import de.szut.lf8_starter.project.qualificationConnection.Dtos.RemoveQualificationConnectionDto;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -19,8 +19,8 @@ import java.util.List;
 @RequestMapping(value = "project")
 @PreAuthorize("hasAnyAuthority('user')")
 public class ProjectController {
-    private ProjectService projectService;
-    private ProjectMappingService mappingService;
+    private final ProjectService projectService;
+    private final ProjectMappingService mappingService;
 
     public ProjectController(ProjectService projectService,
                              ProjectMappingService mappingService) {
@@ -39,8 +39,8 @@ public class ProjectController {
     }
 
     @PostMapping("{projectId}/qualifications")
-    public ResponseEntity<GetProjectDto> addQualificationToProject(@RequestParam Long projectId,  @RequestBody @Valid AddQualificationConnectionDto addQualificationConnectionDto) {
-        return new ResponseEntity<>(mappingService.mapProjectEntityToGetProjectDto(projectService.AddQualificationToProject(projectId, addQualificationConnectionDto)), HttpStatus.CREATED);
+    public ResponseEntity<GetProjectDto> addQualificationToProject(@RequestParam Long projectId,  @RequestBody @Valid AddQualificationConnectionIndividualDto addQualificationConnectionIndividualDto) {
+        return new ResponseEntity<>(mappingService.mapProjectEntityToGetProjectDto(projectService.AddQualificationToProject(projectId, addQualificationConnectionIndividualDto)), HttpStatus.CREATED);
     }
 
     @DeleteMapping("{projectId}/qualifications")
@@ -68,8 +68,7 @@ public class ProjectController {
 
     @PostMapping
     public ResponseEntity<GetProjectDto> create(@RequestBody @Valid AddProjectDto addProjectDto) {
-        var createdEntity = projectService.createProject(addProjectDto);
-        return new ResponseEntity<>(mappingService.mapProjectEntityToGetProjectDto(createdEntity), HttpStatus.CREATED);
+        return new ResponseEntity<>(mappingService.mapProjectEntityToGetProjectDto(projectService.createProject(addProjectDto)), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")

@@ -5,4 +5,5 @@ import lombok.Data;
 @Data
 public class GetQualificationConnectionDto {
     private Long qualificationId;
+    private int neededEmployeesWithQualificationCount;
 }

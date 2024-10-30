@@ -1,7 +1,8 @@
 package de.szut.lf8_starter.project.dtos;
 
 import de.szut.lf8_starter.project.employeeMembership.Dtos.AddEmployeeMembershipDto;
-import de.szut.lf8_starter.project.qualificationConnection.Dtos.AddQualificationConnectionDto;
+import de.szut.lf8_starter.project.qualificationConnection.Dtos.AddQualificationConnectionForProjectDto;
+import de.szut.lf8_starter.project.qualificationConnection.Dtos.AddQualificationConnectionIndividualDto;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -21,5 +22,5 @@ public class AddProjectDto {
     @NotEmpty
     private Date endDate;
     private Set<AddEmployeeMembershipDto> employees;
-    private Set<AddQualificationConnectionDto> qualifications;
+    private Set<AddQualificationConnectionForProjectDto> qualifications;
 }
