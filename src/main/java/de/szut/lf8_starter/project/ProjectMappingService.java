@@ -35,6 +35,7 @@ public class ProjectMappingService {
     public GetQualificationConnectionDto mapQualificationConnectionEntityToGetQualificationConnectionDto(QualificationConnectionEntity entity) {
         var dto = new GetQualificationConnectionDto();
         dto.setQualificationId(entity.getQualificationId());
+        dto.setNeededEmployeesWithQualificationCount(entity.getNeededEmployeesWithQualificationCount());
         return dto;
     }
 }

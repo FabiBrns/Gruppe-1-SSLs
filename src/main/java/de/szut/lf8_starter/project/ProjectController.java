@@ -5,7 +5,7 @@ import de.szut.lf8_starter.project.dtos.GetProjectDto;
 import de.szut.lf8_starter.project.dtos.UpdateProjectDto;
 import de.szut.lf8_starter.project.employeeMembership.Dtos.AddEmployeeMembershipDto;
 import de.szut.lf8_starter.project.employeeMembership.Dtos.RemoveEmployeeMembershipDto;
-import de.szut.lf8_starter.project.qualificationConnection.Dtos.AddQualificationConnectionDto;
+import de.szut.lf8_starter.project.qualificationConnection.Dtos.AddQualificationConnectionIndividualDto;
 import de.szut.lf8_starter.project.qualificationConnection.Dtos.RemoveQualificationConnectionDto;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -39,8 +39,8 @@ public class ProjectController {
     }
 
     @PostMapping("{projectId}/qualifications")
-    public ResponseEntity<GetProjectDto> addQualificationToProject(@RequestParam Long projectId,  @RequestBody @Valid AddQualificationConnectionDto addQualificationConnectionDto) {
-        return new ResponseEntity<>(mappingService.mapProjectEntityToGetProjectDto(projectService.AddQualificationToProject(projectId, addQualificationConnectionDto)), HttpStatus.CREATED);
+    public ResponseEntity<GetProjectDto> addQualificationToProject(@RequestParam Long projectId,  @RequestBody @Valid AddQualificationConnectionIndividualDto addQualificationConnectionIndividualDto) {
+        return new ResponseEntity<>(mappingService.mapProjectEntityToGetProjectDto(projectService.AddQualificationToProject(projectId, addQualificationConnectionIndividualDto)), HttpStatus.CREATED);
     }
 
     @DeleteMapping("{projectId}/qualifications")

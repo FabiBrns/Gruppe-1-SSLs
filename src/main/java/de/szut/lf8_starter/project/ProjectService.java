@@ -6,7 +6,7 @@ import de.szut.lf8_starter.project.dtos.AddProjectDto;
 import de.szut.lf8_starter.project.dtos.UpdateProjectDto;
 import de.szut.lf8_starter.project.employeeMembership.Dtos.AddEmployeeMembershipDto;
 import de.szut.lf8_starter.project.employeeMembership.EmployeeMembershipService;
-import de.szut.lf8_starter.project.qualificationConnection.Dtos.AddQualificationConnectionDto;
+import de.szut.lf8_starter.project.qualificationConnection.Dtos.AddQualificationConnectionIndividualDto;
 import de.szut.lf8_starter.project.qualificationConnection.QualificationConnectionService;
 import org.springframework.stereotype.Service;
 
@@ -93,9 +93,9 @@ public class ProjectService {
         employeeMembershipService.removeEmployeeFromProject(projectId, employeeId);
     }
 
-    public ProjectEntity AddQualificationToProject(Long projectId, AddQualificationConnectionDto addQualificationConnectionDto) {
-        qualificationConnectionService.ensureAddQualificationToProjectRequestIsSafe(projectId, addQualificationConnectionDto.getQualificationId());
-        return qualificationConnectionService.addQualificationToProject(projectId, addQualificationConnectionDto.getQualificationId());
+    public ProjectEntity AddQualificationToProject(Long projectId, AddQualificationConnectionIndividualDto addQualificationConnectionIndividualDto) {
+        qualificationConnectionService.ensureAddQualificationToProjectRequestIsSafe(projectId, addQualificationConnectionIndividualDto.getQualificationId());
+        return qualificationConnectionService.addQualificationToProject(projectId, addQualificationConnectionIndividualDto.getQualificationId());
     }
 
     public void RemoveQualificationFromProject(Long projectId, Long qualificationId) {

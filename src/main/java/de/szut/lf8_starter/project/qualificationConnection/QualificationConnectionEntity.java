@@ -11,6 +11,7 @@ public class QualificationConnectionEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private Long qualificationId;
+    private int neededEmployeesWithQualificationCount;
     @ManyToOne(cascade = CascadeType.DETACH)
     private ProjectEntity project;
 }

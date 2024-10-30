@@ -8,7 +8,7 @@ import de.szut.lf8_starter.exceptionHandling.ResourceNotFoundException;
 import de.szut.lf8_starter.project.ProjectEntity;
 import de.szut.lf8_starter.project.ProjectRepository;
 import de.szut.lf8_starter.project.employeeMembership.Dtos.AddEmployeeMembershipDto;
-import de.szut.lf8_starter.project.qualificationConnection.Dtos.AddQualificationConnectionDto;
+import de.szut.lf8_starter.project.qualificationConnection.Dtos.AddQualificationConnectionForProjectDto;
 import de.szut.lf8_starter.project.qualificationConnection.QualificationConnectionEntity;
 import org.springframework.stereotype.Service;
 
@@ -44,12 +44,17 @@ public class EmployeeMembershipService {
         }
     }
 
-    public void ensureAddAllMembersToProjectRequestIsSafe(ProjectEntity projectEntity, Set<AddEmployeeMembershipDto> employees, Set<AddQualificationConnectionDto> qualifications) {
-        var allQualificationIds = new HashSet<>(qualifications.stream().map(AddQualificationConnectionDto::getQualificationId).toList());
+    public void ensureAddAllMembersToProjectRequestIsSafe(ProjectEntity projectEntity, Set<AddEmployeeMembershipDto> employees, Set<AddQualificationConnectionForProjectDto> qualifications) {
+        var allQualificationIds = new HashSet<>(qualifications.stream().map(AddQualificationConnectionForProjectDto::getQualificationId).toList());
         var allProjects = projectRepository.findAll();
+        var existentQualificationCount = new HashMap<Long, Integer>();
+
         for (var employee : employees) {
             if (!allQualificationIds.contains(employee.getQualificationId())) {
                 throw new ResourceNotFoundException("project does not require qualification with id: " + employee.getQualificationId());
+            }
+            if (employees.stream().filter(x -> x.getEmployeeId().equals(employee.getEmployeeId())).count() > 1) {
+                throw new ResourceNotFoundException("employee with id " + employee.getEmployeeId() + " present more than once in the list of employees");
             }
             if (!employeeReadService.getRequest(employee.getEmployeeId()).getSkillSet().stream().map(GetQualificationDto::getId)
                     .toList()
@@ -63,10 +68,19 @@ public class EmployeeMembershipService {
                     }
                 }
             }
+            existentQualificationCount.put(employee.getQualificationId(), existentQualificationCount.containsKey(employee.getQualificationId())
+                    ? existentQualificationCount.get(employee.getQualificationId()) + 1
+                    : 1);
+        }
+        for (var qualification : qualifications) {
+            if (!existentQualificationCount.containsKey(qualification.getQualificationId())) continue;
+            if (qualification.getNeededEmployeeCount() < existentQualificationCount.get(qualification.getQualificationId())) {
+                throw new ResourceNotFoundException("bing bong");
+            }
         }
     }
 
-    public void addAllEmployeesToProject(ProjectEntity projectEntity, Set<AddEmployeeMembershipDto> employees, Set<AddQualificationConnectionDto> qualifications) {
+    public void addAllEmployeesToProject(ProjectEntity projectEntity, Set<AddEmployeeMembershipDto> employees, Set<AddQualificationConnectionForProjectDto> qualifications) {
         var employeeMemberships = employees.stream().map(x -> {
             var em = new EmployeeMembershipEntity();
             em.setEmployeeId(x.getEmployeeId());
@@ -106,6 +120,22 @@ public class EmployeeMembershipService {
                 .toList()
                 .contains(qualificationId)) {
             throw new ResourceNotFoundException("employee does not own qualification with id: " + qualificationId);
+        }
+        if (projectResponse.get().getEmployeeMemberships().stream().anyMatch(x -> x.getEmployeeId().equals(employeeId))) {
+            throw new ResourceNotFoundException("employee already in project");
+        }
+        // we are deeply sorry...
+        if (projectResponse.get().getEmployeeMemberships().stream().filter(x -> x.getQualificationId().equals(qualificationId))
+                    .count() >= projectResponse
+                    .get()
+                    .getQualificationConnections()
+                    .stream().filter(x -> x.getQualificationId()
+                        .equals(qualificationId))
+                    .findFirst()
+                    .get()
+                    .getNeededEmployeesWithQualificationCount()
+        ) {
+            throw new ResourceNotFoundException("ugly ahhh if (membership service)");
         }
         for (var project : allProjects) {
             if (project.getEmployeeMemberships().stream().anyMatch(x -> x.getEmployeeId().equals(employeeId))) {

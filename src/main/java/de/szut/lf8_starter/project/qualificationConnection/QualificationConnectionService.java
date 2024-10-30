@@ -6,7 +6,7 @@ import de.szut.lf8_starter.exceptionHandling.QualificationConflictException;
 import de.szut.lf8_starter.exceptionHandling.ResourceNotFoundException;
 import de.szut.lf8_starter.project.ProjectEntity;
 import de.szut.lf8_starter.project.ProjectRepository;
-import de.szut.lf8_starter.project.qualificationConnection.Dtos.AddQualificationConnectionDto;
+import de.szut.lf8_starter.project.qualificationConnection.Dtos.AddQualificationConnectionForProjectDto;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -26,9 +26,13 @@ public class QualificationConnectionService {
         this.qualificationReadService = qualificationReadService;
     }
 
-    public void ensureAddAllQualificationConnectionsToProjectIsSafe(ProjectEntity projectEntity, Set<AddQualificationConnectionDto> qualifications) {
-        var allIds = new HashSet<>(qualifications.stream().map(AddQualificationConnectionDto::getQualificationId).toList());
+    public void ensureAddAllQualificationConnectionsToProjectIsSafe(ProjectEntity projectEntity, Set<AddQualificationConnectionForProjectDto> qualifications) {
+        var allIds = new HashSet<>(qualifications.stream().map(AddQualificationConnectionForProjectDto::getQualificationId).toList());
         var allIdsOnServer = new HashSet<>(Arrays.stream(qualificationReadService.getAllRequest()).map(GetQualificationDto::getId).toList());
+
+        if (allIds.size() != qualifications.size()) {
+            throw new ResourceNotFoundException("doubled Id input");
+        }
 
         for (var id : allIds) {
             if (!allIdsOnServer.contains(id))
@@ -36,14 +40,14 @@ public class QualificationConnectionService {
         }
     }
 
-    public void addAllConnectionsToProject(ProjectEntity projectEntity, Set<AddQualificationConnectionDto> qualifications) {
-        var qualificationConnections = new HashSet<>(qualifications.stream().map(AddQualificationConnectionDto::getQualificationId)
-                .toList()).stream().map(x -> {
+    public void addAllConnectionsToProject(ProjectEntity projectEntity, Set<AddQualificationConnectionForProjectDto> qualifications) {
+        var qualificationConnections = new HashSet<>(qualifications.stream().map(x -> {
             var entity = new QualificationConnectionEntity();
-            entity.setQualificationId(x);
+            entity.setQualificationId(x.getQualificationId());
             entity.setProject(projectEntity);
+            entity.setNeededEmployeesWithQualificationCount(x.getNeededEmployeeCount());
             return entity;
-        }).toList();
+        }).toList()).stream().toList();
         qualificationConnectionRepository.saveAll(qualificationConnections);
         projectEntity.setQualificationConnections(qualificationConnections);
     }
@@ -60,9 +64,17 @@ public class QualificationConnectionService {
 
     public ProjectEntity addQualificationToProject(Long projectId, Long qualificationId) {
         var project = projectRepository.findById(projectId).get();
-        var entity = new QualificationConnectionEntity();
-        entity.setQualificationId(qualificationId);
-        entity.setProject(project);
+        var existentQualification = qualificationConnectionRepository.findAllByQualificationIdAndProjectId(qualificationId, projectId);
+        QualificationConnectionEntity entity;
+        if (!existentQualification.isEmpty()) {
+            entity = existentQualification.getFirst();
+            entity.setNeededEmployeesWithQualificationCount(entity.getNeededEmployeesWithQualificationCount() + 1);
+        } else {
+            entity = new QualificationConnectionEntity();
+            entity.setQualificationId(qualificationId);
+            entity.setProject(project);
+            entity.setNeededEmployeesWithQualificationCount(0);
+        }
 
         qualificationConnectionRepository.save(entity);
         project.getQualificationConnections().add(entity);
@@ -85,7 +97,10 @@ public class QualificationConnectionService {
     public void removeQualificationFromProject(Long projectId, Long qualificationId) {
         var project = projectRepository.findById(projectId).get();
         var qualificationConnection = project.getQualificationConnections().stream().filter(x -> Objects.equals(x.getQualificationId(), qualificationId)).findFirst().get();
-        project.getQualificationConnections().remove(qualificationConnection);
+        qualificationConnection.setNeededEmployeesWithQualificationCount(qualificationConnection.getNeededEmployeesWithQualificationCount() - 1);
+        if (qualificationConnection.getNeededEmployeesWithQualificationCount() == 0) {
+            project.getQualificationConnections().remove(qualificationConnection);
+        }
         projectRepository.save(project);
     }
 }
