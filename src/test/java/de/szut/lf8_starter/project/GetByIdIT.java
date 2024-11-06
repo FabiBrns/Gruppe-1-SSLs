@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class GetByIdIT extends AbstractIntegrationTest {
+
     @Test
     void authorization() throws Exception {
         this.mockMvc.perform(get("/project/1")

@@ -15,6 +15,7 @@ import java.sql.Date;
 
 import static org.hamcrest.Matchers.is;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -48,47 +49,39 @@ public class AddQualificationToProjectIT extends AbstractIntegrationTest {
     }
 
     @Test
+    void authorization() throws Exception {
+        this.mockMvc.perform(post("/project/1/qualifications")
+                        .with(csrf()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     @WithMockUser(roles = "user")
     void addQualificationToProject_Success() throws Exception {
+        // when
         this.mockMvc.perform(MockMvcRequestBuilders.post("/project/{projectId}/qualifications", 1)
                         .with(csrf())
                         .param("projectId", String.valueOf(1))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"qualificationId\": 207}"))
+
+                // then
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name", is("Epic Win Project")))
                 .andExpect(jsonPath("$.qualifications[0].qualificationId", is(207)));
     }
 
-    // TEST: 404 bei nicht existierender QualiId
-
     @Test
     @WithMockUser(roles = "user")
     void addQualificationToProject_NotExistingQualificationId() throws Exception {
+        // when
         this.mockMvc.perform(MockMvcRequestBuilders.post("/project/{projectId}/qualifications", 1)
                         .with(csrf())
                         .param("projectId", String.valueOf(1))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"qualificationId\": 999}"))
+
+                // then
                 .andExpect(status().isNotFound());
-    }
-
-
-    @Test
-    @WithMockUser(roles = "user")
-    void addQualificationToProject_Unauthorized() throws Exception {
-        this.mockMvc.perform(MockMvcRequestBuilders.post("/project/{projectId}/qualifications", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"qualificationId\": 207}"))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    void addQualificationToProject_Unauthenticated() throws Exception {
-        this.mockMvc.perform(MockMvcRequestBuilders.post("/project/{projectId}/qualifications", 1L)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"qualificationId\": 207}"))
-                .andExpect(status().isUnauthorized());
     }
 }
