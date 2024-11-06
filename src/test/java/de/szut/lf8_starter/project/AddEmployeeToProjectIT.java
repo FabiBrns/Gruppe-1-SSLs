@@ -15,8 +15,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.sql.Date;
 import java.util.List;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class AddEmployeeToProjectIT extends AbstractIntegrationTest {
@@ -47,7 +48,7 @@ public class AddEmployeeToProjectIT extends AbstractIntegrationTest {
         var project = new ProjectEntity();
         project.setName("Epic Win Project");
         project.setStartDate(Date.valueOf("2024-11-06"));
-        project.setEndDate(Date.valueOf("2024-11-07"));
+        project.setPlannedEndDate(Date.valueOf("2024-11-07"));
         projectRepository.save(project);
 
 
@@ -58,8 +59,6 @@ public class AddEmployeeToProjectIT extends AbstractIntegrationTest {
     @Test
     @WithMockUser(roles = "user")
     public void addEmployeeToProject_Success() throws Exception {
-
-
         this.mockMvc.perform(MockMvcRequestBuilders.post("/project/{projectId}/employees", 1L)
                         .with(csrf())
                         .param("projectId", String.valueOf(1))
@@ -70,8 +69,40 @@ public class AddEmployeeToProjectIT extends AbstractIntegrationTest {
 
     // TEST: Existiert Mitarbeiter?
 
+    @Test
+    @WithMockUser(roles = "user")
+    public void addEmployeeToProject_EmployeeDoesNotExist() throws Exception {
+        when(employeeReadService.getRequest(999L)).thenReturn(null);
+
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/project/{projectId}/employees", 1L)
+                        .with(csrf())
+                        .param("projectId", String.valueOf(1))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"employeeId\": 999, \"qualificationId\": 207}"))
+                .andExpect(status().isNotFound());
+    }
+
     // TEST: Hat Mitarbeiter Qualifikation?
 
+    @Test
+    @WithMockUser(roles = "user")
+    public void addEmployeeToProject_EmployeeDoesNotHaveRequiredQualification() throws Exception {
+        var qualificationDto = new GetQualificationDto();
+        qualificationDto.setId(208L);
+        var employeeDto = new GetEmployeeDto();
+        employeeDto.setSkillSet(List.of(qualificationDto));
+
+        when(employeeReadService.getRequest(1L)).thenReturn(employeeDto);
+
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/project/{projectId}/employees", 1L)
+                        .with(csrf())
+                        .param("projectId", String.valueOf(1))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"employeeId\": 1, \"qualificationId\": 208}"))
+                .andExpect(status().isConflict());
+    }
+
+    // FEHLT NOCH
     // TEST: Time conflict beim mitarbeiter
 
     @Test
