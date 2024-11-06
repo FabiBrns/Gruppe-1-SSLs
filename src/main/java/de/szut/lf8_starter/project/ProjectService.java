@@ -30,10 +30,13 @@ public class ProjectService {
         ProjectEntity projectEntity = new ProjectEntity();
         projectEntity.setName(addProjectDto.getName());
 
-        if (addProjectDto.getEndDate().before(addProjectDto.getStartDate()))
+        if (addProjectDto.getPlannedEndDate().before(addProjectDto.getStartDate()))
             throw new DateConflictException("end date shouldn't be before start date");
         projectEntity.setStartDate(addProjectDto.getStartDate());
-        projectEntity.setEndDate(addProjectDto.getEndDate());
+        projectEntity.setPlannedEndDate(addProjectDto.getPlannedEndDate());
+        projectEntity.setCustomerId(addProjectDto.getCustomerId());
+        projectEntity.setContactPersonName(addProjectDto.getContactPersonName());
+        projectEntity.setComment(addProjectDto.getComment());
 
         qualificationConnectionService.ensureAddAllQualificationConnectionsToProjectIsSafe(projectEntity, addProjectDto.getQualifications());
         employeeMembershipService.ensureAddAllMembersToProjectRequestIsSafe(projectEntity, addProjectDto.getEmployees(), addProjectDto.getQualifications());
@@ -74,11 +77,15 @@ public class ProjectService {
 
         var entity = response.get();
 
-        employeeMembershipService.ensureUpdateDateOnProjectIsSafe(entity, updateProjectDto.getStartDate(), updateProjectDto.getEndDate());
+        employeeMembershipService.ensureUpdateDateOnProjectIsSafe(entity, updateProjectDto.getStartDate(), updateProjectDto.getPlannedEndDate(), updateProjectDto.getActualEndDate());
 
         entity.setName(updateProjectDto.getName());
         entity.setStartDate(updateProjectDto.getStartDate());
-        entity.setEndDate(updateProjectDto.getEndDate());
+        entity.setPlannedEndDate(updateProjectDto.getPlannedEndDate());
+        entity.setActualEndDate(updateProjectDto.getActualEndDate());
+        entity.setCustomerId(updateProjectDto.getCustomerId());
+        entity.setContactPersonName(updateProjectDto.getContactPersonName());
+        entity.setComment(updateProjectDto.getComment());
 
         return projectRepository.save(entity);
     }

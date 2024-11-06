@@ -57,3 +57,8 @@ docker compose up
 1. Auf der Projektebene [GetBearerToken.http](GetBearerToken.http) öffnen.
 2. Neben der Request auf den grünen Pfeil drücken
 3. Aus dem Reponse das access_token kopieren
+
+# Zusatzaufgaben
+### 1. SSL-36: Anpassung der Behandlung von Qualifikationen 
+    -> Durch "neededEmployeeCount" im "AddQualificationConnectionForProjectDto", 
+    kann die Anzahl von benötigten Qualifikationen genauer festgelegt werden.

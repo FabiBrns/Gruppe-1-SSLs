@@ -58,8 +58,6 @@ public class QualificationConnectionService {
             throw new ResourceNotFoundException("project with id " + projectId + " does not exist");
         if (Arrays.stream(qualificationReadService.getAllRequest()).noneMatch(x -> Objects.equals(x.getId(), qualificationId)))
             throw new ResourceNotFoundException("qualification with id " + qualificationId + " does not exist");
-        if (projectResponse.get().getQualificationConnections().stream().anyMatch(x -> Objects.equals(x.getQualificationId(), qualificationId)))
-            throw new QualificationConflictException("qualification with id " + qualificationId + " already exists in the project with id " + projectId);
     }
 
     public ProjectEntity addQualificationToProject(Long projectId, Long qualificationId) {
@@ -85,12 +83,12 @@ public class QualificationConnectionService {
         var projectResponse = projectRepository.findById(projectId);
         if (projectResponse.isEmpty())
             throw new ResourceNotFoundException("project with id " + projectId + " does not exist");
-        if (projectResponse.get().getQualificationConnections().stream().filter(x -> Objects.equals(x.getQualificationId(), qualificationId)).toArray().length != 1)
+        var qualificationConnection = projectResponse.get().getQualificationConnections().stream().filter(x -> Objects.equals(x.getQualificationId(), qualificationId)).findFirst();
+        if (qualificationConnection.isEmpty())
             throw new ResourceNotFoundException("no qualification connection between project with id " + projectId + " and qualification with id " + qualificationId + " exists");
 
-        for (var membership : projectResponse.get().getEmployeeMemberships()) {
-            if (Objects.equals(membership.getQualificationId(), qualificationId))
-                throw new QualificationConflictException("qualification with id " + qualificationId + " is assigned to employee with id " + membership.getEmployeeId() + " on project with id " + projectId);
+        if (qualificationConnection.get().getNeededEmployeesWithQualificationCount() <= projectResponse.get().getEmployeeMemberships().stream().filter(x -> x.getQualificationId().equals(qualificationId)).count()) {
+            throw new QualificationConflictException("spot with qualification with id " + qualificationId + " already in use");
         }
     }
 
