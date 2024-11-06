@@ -25,7 +25,5 @@ public class UpdateProjectDto {
     @NotNull
     @NotEmpty
     private String contactPersonName;
-    @NotNull
-    @NotEmpty
     private String comment;
 }

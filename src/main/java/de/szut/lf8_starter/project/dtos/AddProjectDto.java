@@ -25,8 +25,6 @@ public class AddProjectDto {
     @NotNull
     @NotEmpty
     private String contactPersonName;
-    @NotNull
-    @NotEmpty
     private String comment;
 
     private Set<AddEmployeeMembershipDto> employees;
