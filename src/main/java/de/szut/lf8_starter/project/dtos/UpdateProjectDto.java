@@ -16,5 +16,16 @@ public class UpdateProjectDto {
     private Date startDate;
     @NotNull
     @NotEmpty
-    private Date endDate;
+    private Date plannedEndDate;
+    @NotNull
+    @NotEmpty
+    private Date actualEndDate;
+    @NotNull
+    private int customerId;
+    @NotNull
+    @NotEmpty
+    private String contactPersonName;
+    @NotNull
+    @NotEmpty
+    private String comment;
 }

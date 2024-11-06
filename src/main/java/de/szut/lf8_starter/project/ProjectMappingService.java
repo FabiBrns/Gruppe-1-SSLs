@@ -20,8 +20,12 @@ public class ProjectMappingService {
                 .collect(Collectors.toSet()));
         dto.setQualifications(entity.getQualificationConnections().stream().map(this::mapQualificationConnectionEntityToGetQualificationConnectionDto)
                 .collect(Collectors.toSet()));
-        dto.setEndDate(entity.getEndDate());
+        dto.setPlannedEndDate(entity.getPlannedEndDate());
         dto.setStartDate(entity.getStartDate());
+        dto.setActualEndDate(entity.getActualEndDate());
+        dto.setContactPersonName(entity.getContactPersonName());
+        dto.setComment(entity.getComment());
+        dto.setCustomerId(entity.getCustomerId());
         return dto;
     }
 
