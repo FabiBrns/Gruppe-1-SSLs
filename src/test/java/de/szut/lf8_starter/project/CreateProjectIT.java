@@ -57,23 +57,6 @@ public class CreateProjectIT extends AbstractIntegrationTest {
             }
             """;
 
-        ProjectEntity mockProject = new ProjectEntity();
-        mockProject.setName("Project SSL");
-        mockProject.setStartDate(Date.valueOf(LocalDate.of(2024, 11, 6)));
-        mockProject.setEndDate(Date.valueOf(LocalDate.of(2024, 11, 7)));
-
-        EmployeeMembershipEntity mockEmployee = new EmployeeMembershipEntity();
-        mockEmployee.setEmployeeId(297L);
-        mockEmployee.setQualificationId(207L);
-        mockProject.setEmployeeMemberships(List.of(mockEmployee));
-
-        QualificationConnectionEntity mockQualification = new QualificationConnectionEntity();
-        mockQualification.setQualificationId(207L);
-        mockQualification.setNeededEmployeesWithQualificationCount(1);
-        mockProject.setQualificationConnections(List.of(mockQualification));
-
-        when(projectService.createProject((AddProjectDto) any(AddProjectDto.class))).thenReturn(mockProject);
-
         mockMvc.perform(post("/project")
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON)
