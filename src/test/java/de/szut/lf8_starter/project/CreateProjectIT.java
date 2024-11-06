@@ -42,6 +42,7 @@ public class CreateProjectIT extends AbstractIntegrationTest {
     @Test
     @WithMockUser(roles = "user")
     void createProjectSuccessfully() throws Exception {
+        // given
         final String content = """
                 {
                     "name": "Project SSL",
@@ -73,12 +74,15 @@ public class CreateProjectIT extends AbstractIntegrationTest {
         mockedResponse.setEmployeeMemberships(List.of(employee));
         mockedResponse.setQualificationConnections(List.of(new QualificationConnectionEntity()));
 
+        // when
         when(projectService.createProject(any(AddProjectDto.class))).thenReturn(mockedResponse);
 
         mockMvc.perform(post("/project")
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(csrf()))
+
+                // then
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name", is("Project SSL")))
                 .andExpect(jsonPath("$.startDate", is("2024-11-06")))
@@ -93,6 +97,7 @@ public class CreateProjectIT extends AbstractIntegrationTest {
     @Test
     @WithMockUser(roles = "user")
     void createProjectWithMissingEmployeeOrQualification() throws Exception {
+        // given
         final String content = """
                 {
                     "name": "Project SSL",
@@ -103,6 +108,7 @@ public class CreateProjectIT extends AbstractIntegrationTest {
                 }
                 """;
 
+        // when
         when(projectService.createProject(any(AddProjectDto.class)))
                 .thenThrow(new ResourceNotFoundException("Employee or qualification not found"));
 
@@ -110,6 +116,8 @@ public class CreateProjectIT extends AbstractIntegrationTest {
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(csrf()))
+
+                // then
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message", containsString("Employee or qualification not found")));
 
@@ -119,6 +127,7 @@ public class CreateProjectIT extends AbstractIntegrationTest {
     @Test
     @WithMockUser(roles = "user")
     void createProjectWithEmployeeTimeConflict() throws Exception {
+        // given
         final String content = """
                 {
                     "name": "Project SSL",
@@ -139,6 +148,7 @@ public class CreateProjectIT extends AbstractIntegrationTest {
                 }
                 """;
 
+        // when
         when(projectService.createProject(any(AddProjectDto.class)))
                 .thenThrow(new EmployeeConflictException("Employee 297 has a scheduling conflict"));
 
@@ -146,6 +156,8 @@ public class CreateProjectIT extends AbstractIntegrationTest {
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(csrf()))
+
+                // then
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message", containsString("Employee 297 has a scheduling conflict")));
 

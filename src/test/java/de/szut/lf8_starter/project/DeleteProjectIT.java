@@ -20,11 +20,14 @@ public class DeleteProjectIT extends AbstractIntegrationTest {
     @Test
     @WithMockUser(roles = "user")
     void happyPath() throws Exception {
+        // when
         var stored = projectRepository.save(new ProjectEntity());
 
         this.mockMvc.perform(delete("/project/1")
                         .param("id", String.valueOf(stored.getId()))
                         .with(csrf()))
+
+                // then
                 .andExpect(status().isOk());
         assertThat(projectRepository.findById(stored.getId()).isPresent()).isFalse();
     }
@@ -32,8 +35,11 @@ public class DeleteProjectIT extends AbstractIntegrationTest {
     @Test
     @WithMockUser(roles = "user")
     void deleteWithInvalidIdFormat() throws Exception {
+        // when
         this.mockMvc.perform(delete("/project/invalid-id")
                         .with(csrf()))
+
+                // then
                 .andExpect(status().isBadRequest());
     }
 }

@@ -21,11 +21,15 @@ public class GetByIdIT extends AbstractIntegrationTest {
     @Test
     @WithMockUser(roles = "user")
     void findById() throws Exception {
+        // given
         var stored = projectRepository.save(new ProjectEntity());
 
+        // when
         this.mockMvc.perform(get("/project/" + stored.getId())
                         .param("id", stored.getId().toString())
                         .with(csrf()))
+
+                // then
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(stored.getId()));
     }
@@ -33,13 +37,17 @@ public class GetByIdIT extends AbstractIntegrationTest {
     @Test
     @WithMockUser(roles = "user")
     void findById_notFound() throws Exception {
+        // given
         var stored = new ProjectEntity();
         stored.setId(999L);
         projectRepository.save(stored);
 
+        // when
         this.mockMvc.perform(get("/project/" + stored.getId())
                         .param("id", String.valueOf(stored.getId()))
                         .with(csrf()))
+
+                // then
                 .andExpect(status().isNotFound());
     }
 }

@@ -17,7 +17,6 @@ public class UpdateProjectDto {
     @NotNull
     @NotEmpty
     private Date plannedEndDate;
-    @NotNull
     @NotEmpty
     private Date actualEndDate;
     @NotNull

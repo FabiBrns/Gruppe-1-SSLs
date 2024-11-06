@@ -28,6 +28,7 @@ public class GetAllIT extends AbstractIntegrationTest {
     @Test
     @WithMockUser(roles = "user")
     void findAllWithProjectDetails() throws Exception {
+        // given
         var test1 = new ProjectEntity();
         test1.setName("Road to Grand Champion");
         test1.setStartDate(Date.valueOf("2024-11-06"));
@@ -59,8 +60,11 @@ public class GetAllIT extends AbstractIntegrationTest {
         test1.setQualificationConnections(List.of(qualificationConnectionEntity1));
         test2.setQualificationConnections(List.of(qualificationConnectionEntity2));
 
+        // when
         this.mockMvc.perform(get("/project")
                         .with(csrf()))
+
+                // then
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].name", is("Road to Grand Champion")))
@@ -76,6 +80,7 @@ public class GetAllIT extends AbstractIntegrationTest {
     @Test
     @WithMockUser(roles = "user")
     void findAll() throws Exception {
+        // given
         var test1 = new ProjectEntity();
         test1.setName("Road to Grand Champion");
         projectRepository.save(test1);
@@ -84,8 +89,11 @@ public class GetAllIT extends AbstractIntegrationTest {
         test2.setName("Downfall to Bronze");
         projectRepository.save(test2);
 
+        // when
         this.mockMvc.perform(get("/project")
                         .with(csrf()))
+
+                // then
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].name", is("Road to Grand Champion")))
@@ -95,8 +103,11 @@ public class GetAllIT extends AbstractIntegrationTest {
     @Test
     @WithMockUser(roles = "user")
     void findAllWhenEmpty() throws Exception {
+        // when
         this.mockMvc.perform(get("/project")
                         .with(csrf()))
+
+                // then
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$", hasSize(0)));
     }

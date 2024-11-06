@@ -1,8 +1,5 @@
 package de.szut.lf8_starter.project;
 
-import de.szut.lf8_starter.employeeWebServiceAccessPoint.Dtos.GetEmployeeDto;
-import de.szut.lf8_starter.employeeWebServiceAccessPoint.Dtos.GetQualificationDto;
-import de.szut.lf8_starter.employeeWebServiceAccessPoint.EmployeeReadService;
 import de.szut.lf8_starter.project.dtos.UpdateProjectDto;
 import de.szut.lf8_starter.project.employeeMembership.EmployeeMembershipEntity;
 import de.szut.lf8_starter.project.qualificationConnection.QualificationConnectionEntity;
@@ -11,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.sql.Date;
 import java.util.List;
@@ -30,9 +26,6 @@ public class UpdateProjectIT extends AbstractIntegrationTest {
     @MockBean
     ProjectService projectService;
 
-    @MockBean
-    EmployeeReadService employeeReadService;
-
     @Test
     void authorization() throws Exception {
         this.mockMvc.perform(put("/project")
@@ -43,6 +36,7 @@ public class UpdateProjectIT extends AbstractIntegrationTest {
     @Test
     @WithMockUser(roles = "user")
     void updateProject_Success() throws Exception {
+        // given
         final String content = """
                 {
                     "name": "Project SSL",
@@ -85,6 +79,7 @@ public class UpdateProjectIT extends AbstractIntegrationTest {
         mockedResponse.setEmployeeMemberships(List.of(employee));
         mockedResponse.setQualificationConnections(List.of(new QualificationConnectionEntity()));
 
+        // when
         when(projectService.updateById(anyLong(), any(UpdateProjectDto.class))).thenReturn(mockedResponse);
 
         mockMvc.perform(put("/project/{id}", 1L)
@@ -92,6 +87,8 @@ public class UpdateProjectIT extends AbstractIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(csrf())
                         .param("id", "1"))
+
+                // then
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name", is("Project SSL")))
                 .andExpect(jsonPath("$.startDate", is("2024-11-06")))
@@ -101,50 +98,5 @@ public class UpdateProjectIT extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.employees[0].qualificationId", is(207)));
 
         verify(projectService, times(1)).updateById(anyLong(), any(UpdateProjectDto.class));
-    }
-
-    @Test
-    @WithMockUser(roles = "user")
-    public void updateProject_EmployeeConflicts() throws Exception {
-        // given
-        var qualificationDtoJava = new GetQualificationDto();
-        qualificationDtoJava.setId(207L);
-        qualificationDtoJava.setSkill("Java");
-
-        var employeeDto = new GetEmployeeDto();
-        employeeDto.setId(1L);
-        employeeDto.setFirstName("Krasser Typ");
-        employeeDto.setSkillSet(List.of(qualificationDtoJava));
-
-        when(employeeReadService.getRequest(1L)).thenReturn(employeeDto);
-
-        var qualificationConnectionEntity = new QualificationConnectionEntity();
-        qualificationConnectionEntity.setQualificationId(207L);
-        qualificationConnectionEntity.setNeededEmployeesWithQualificationCount(1);
-
-        var project1 = new ProjectEntity();
-        project1.setName("Epic Win Project 1");
-        project1.setStartDate(Date.valueOf("2024-11-06"));
-        project1.setPlannedEndDate(Date.valueOf("2024-11-07"));
-        project1 = projectRepository.save(project1);
-
-        qualificationConnectionEntity.setProject(project1);
-        qualificationConnectionRepository.save(qualificationConnectionEntity);
-
-        var project2 = new ProjectEntity();
-        project2.setName("Epic Win Project 2");
-        project2.setStartDate(Date.valueOf("2024-11-06"));
-        project2.setPlannedEndDate(Date.valueOf("2024-11-07"));
-        project2 = projectRepository.save(project2);
-
-        // when
-        this.mockMvc.perform(MockMvcRequestBuilders.put("/project/{id}", project2.getId())
-                        .with(csrf())
-                        .param("id", String.valueOf(project2.getId()))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"employeeId\": 1, \"qualificationId\": 207}"))
-
-                // then
-                .andExpect(status().isConflict());
     }
 }

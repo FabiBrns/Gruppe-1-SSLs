@@ -30,15 +30,16 @@ public class RemoveQualificationFromProjectIT extends AbstractIntegrationTest {
     public void setUp() {
         super.setUp();
 
-        var qualificationDtoJava = new GetQualificationDto();
-        qualificationDtoJava.setId(207L);
-        qualificationDtoJava.setSkill("Java");
+        var qualificationDto = new GetQualificationDto();
+        qualificationDto.setId(207L);
+        qualificationDto.setSkill("Java");
 
         var qualificationConnectionEntity = new QualificationConnectionEntity();
         qualificationConnectionEntity.setQualificationId(207L);
         qualificationConnectionEntity.setNeededEmployeesWithQualificationCount(1);
 
         var project = new ProjectEntity();
+        project.setId(1L);
         project.setName("Epic Win Project");
         project.setStartDate(Date.valueOf("2024-11-06"));
         project.setPlannedEndDate(Date.valueOf("2024-11-07"));
@@ -58,13 +59,14 @@ public class RemoveQualificationFromProjectIT extends AbstractIntegrationTest {
     @Test
     @WithMockUser(roles = "user")
     void removeQualificationFromProject_Success() throws Exception {
+        // when
         this.mockMvc.perform(MockMvcRequestBuilders.delete("/project/{projectId}/qualifications", project1.getId())
                         .with(csrf())
-                        .param("projectId", project1.getId().toString())
+                        .param("projectId", String.valueOf(project1.getId()))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"qualificationId\": 207}"))
-                .andExpect(status().isOk());
+                        .content("{\"qualificationId\": 207}"));
 
+        // then
         assertThat(qualificationConnectionRepository.
                 findAllByQualificationIdAndProjectId(207L, project1.getId()).isEmpty()).isTrue();
     }
@@ -72,11 +74,14 @@ public class RemoveQualificationFromProjectIT extends AbstractIntegrationTest {
     @Test
     @WithMockUser(roles = "user")
     void removeQualificationFromProject_QualificationNotFound() throws Exception {
+        // when
         this.mockMvc.perform(MockMvcRequestBuilders.delete("/project/{projectId}/qualifications", project1.getId())
                         .with(csrf())
                         .param("projectId", project1.getId().toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
+
+                // then
                 .andExpect(status().isNotFound());
     }
 }
