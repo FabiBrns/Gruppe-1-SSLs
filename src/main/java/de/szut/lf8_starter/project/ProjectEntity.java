@@ -3,6 +3,8 @@ package de.szut.lf8_starter.project;
 import de.szut.lf8_starter.project.employeeMembership.EmployeeMembershipEntity;
 import de.szut.lf8_starter.project.qualificationConnection.QualificationConnectionEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.util.Date;
@@ -18,7 +20,11 @@ public class ProjectEntity {
 
     private String name;
     private Date startDate;
-    private Date endDate;
+    private Date plannedEndDate;
+    private Date actualEndDate;
+    private int customerId;
+    private String contactPersonName;
+    private String comment;
 
     @OneToMany(cascade = CascadeType.ALL,
             fetch = FetchType.LAZY,

@@ -3,10 +3,7 @@ package de.szut.lf8_starter.project.employeeMembership;
 import de.szut.lf8_starter.employeeWebServiceAccessPoint.Dtos.GetEmployeeDto;
 import de.szut.lf8_starter.employeeWebServiceAccessPoint.Dtos.GetQualificationDto;
 import de.szut.lf8_starter.employeeWebServiceAccessPoint.EmployeeReadService;
-import de.szut.lf8_starter.exceptionHandling.EmployeeConflictException;
-import de.szut.lf8_starter.exceptionHandling.PlanningConflictException;
-import de.szut.lf8_starter.exceptionHandling.QualificationConflictException;
-import de.szut.lf8_starter.exceptionHandling.ResourceNotFoundException;
+import de.szut.lf8_starter.exceptionHandling.*;
 import de.szut.lf8_starter.project.ProjectEntity;
 import de.szut.lf8_starter.project.ProjectRepository;
 import de.szut.lf8_starter.project.employeeMembership.Dtos.AddEmployeeMembershipDto;
@@ -29,22 +26,32 @@ public class EmployeeMembershipService {
         this.employeeReadService = employeeReadService;
         this.employeeMembershipRepository = employeeMembershipRepository;
     }
+    public void ensureUpdateDateOnProjectIsSafe(ProjectEntity entity, Date startDate, Date plannedEndDate, Date actualEndDate) {
+        var existentEmployeeMemberships = entity.getEmployeeMemberships();
 
-    public void ensureUpdateDateOnProjectIsSafe(ProjectEntity entity, Date startDate, Date endDate) {
-        var existentEmployeeMembershipsIds = entity.getEmployeeMemberships();
-        for (var membership :
-                existentEmployeeMembershipsIds) {
-            var allMembershipsForEmployee = employeeMembershipRepository.findAllByEmployeeId(membership.getEmployeeId()).stream()
-                    .filter(x -> !x.getProject().getId().equals(entity.getId()))
+        for (var membership : existentEmployeeMemberships) {
+            var otherProjectsForEmployee = employeeMembershipRepository.findAllByEmployeeId(membership.getEmployeeId())
+                    .stream()
+                    .filter(otherMembership -> !otherMembership.getProject().getId().equals(entity.getId()))
                     .toList();
-            for (var membershipToCheckForConflictsWith :
-                    allMembershipsForEmployee) {
-                if (membershipToCheckForConflictsWith.getProject().getStartDate().before(startDate) && endDate.before(membershipToCheckForConflictsWith.getProject().getEndDate())) {
-                    throw new PlanningConflictException("employee with id " + membershipToCheckForConflictsWith.getEmployeeId() + " already tied to another project with id " + membershipToCheckForConflictsWith.getProject().getId());
+
+            for (var potentiallyConflictingMembership : otherProjectsForEmployee) {
+                var potentiallyConflictingProject = potentiallyConflictingMembership.getProject();
+                var potentiallyConflictingStartDate = potentiallyConflictingProject.getStartDate();
+                var potentiallyConflictingEndDate = potentiallyConflictingProject.getActualEndDate() != null ? potentiallyConflictingProject.getActualEndDate() : potentiallyConflictingProject.getPlannedEndDate();
+
+                var endDateToUse = actualEndDate != null ? actualEndDate : plannedEndDate;
+
+                if (startDate.before(potentiallyConflictingEndDate) && endDateToUse.after(potentiallyConflictingStartDate)) {
+                    throw new PlanningConflictException(
+                            "Employee with ID " + membership.getEmployeeId() +
+                                    " is already tied to another project with ID " + potentiallyConflictingProject.getId()
+                    );
                 }
             }
         }
     }
+
 
     public void ensureAddAllMembersToProjectRequestIsSafe(ProjectEntity projectEntity, Set<AddEmployeeMembershipDto> employees, Set<AddQualificationConnectionForProjectDto> qualifications) {
         var allQualificationIds = new HashSet<>(qualifications.stream().map(AddQualificationConnectionForProjectDto::getQualificationId).toList());
@@ -64,12 +71,22 @@ public class EmployeeMembershipService {
                 throw new EmployeeConflictException("employee does not own qualification with id: " + employee.getQualificationId());
             }
             for (var project : allProjects) {
-                if (project.getEmployeeMemberships().stream().anyMatch(x -> x.getEmployeeId().equals(employee.getEmployeeId()))) {
-                    if (project.getStartDate().before(projectEntity.getEndDate()) && projectEntity.getStartDate().before(project.getEndDate())) {
-                        throw new PlanningConflictException("employee with id " + employee.getEmployeeId() + " already tied to another project with id " + project.getId());
+                var isEmployeeInProject = project.getEmployeeMemberships().stream()
+                        .anyMatch(membership -> membership.getEmployeeId().equals(employee.getEmployeeId()));
+
+                if (isEmployeeInProject) {
+                    var projectEndDate = project.getActualEndDate() != null ? project.getActualEndDate() : project.getPlannedEndDate();
+                    var projectEntityEndDate = projectEntity.getActualEndDate() != null ? projectEntity.getActualEndDate() : projectEntity.getPlannedEndDate();
+
+                    if (project.getStartDate().before(projectEntityEndDate) && projectEndDate.after(projectEntity.getStartDate())) {
+                        throw new PlanningConflictException(
+                                "Employee with ID " + employee.getEmployeeId() +
+                                        " is already tied to another project with ID " + project.getId()
+                        );
                     }
                 }
             }
+
             existentQualificationCount.put(employee.getQualificationId(), existentQualificationCount.containsKey(employee.getQualificationId())
                     ? existentQualificationCount.get(employee.getQualificationId()) + 1
                     : 1);
@@ -126,26 +143,30 @@ public class EmployeeMembershipService {
         if (projectResponse.get().getEmployeeMemberships().stream().anyMatch(x -> x.getEmployeeId().equals(employeeId))) {
             throw new EmployeeConflictException("employee already in project");
         }
-        // we are deeply sorry...
-        if (projectResponse.get().getEmployeeMemberships().stream().filter(x -> x.getQualificationId().equals(qualificationId))
-                    .count() >= projectResponse
-                    .get()
-                    .getQualificationConnections()
-                    .stream().filter(x -> x.getQualificationId()
-                        .equals(qualificationId))
-                    .findFirst()
-                    .get()
-                    .getNeededEmployeesWithQualificationCount()
-        ) {
-        throw new QualificationConflictException("too many employees with specific qualification added");
-        }
+        if (projectResponse.get().getEmployeeMemberships().stream().filter(x -> x.getQualificationId().equals(qualificationId)).count() >= projectResponse.get().getQualificationConnections().stream().filter(x -> x.getQualificationId().equals(qualificationId)).findFirst().get().getNeededEmployeesWithQualificationCount()) throw new QualificationConflictException("too many employees with specific qualification added"); // we are deeply sorry...
+        Date projectResponseStartDate = projectResponse.get().getStartDate();
+        Date projectResponseEndDate = projectResponse.get().getActualEndDate() != null
+                ? projectResponse.get().getActualEndDate()
+                : projectResponse.get().getPlannedEndDate();
+
         for (var project : allProjects) {
-            if (project.getEmployeeMemberships().stream().anyMatch(x -> x.getEmployeeId().equals(employeeId))) {
-                if (project.getStartDate().before(projectResponse.get().getEndDate()) && projectResponse.get().getStartDate().before(project.getEndDate())) {
-                    throw new PlanningConflictException("employee with id " + employeeId + " already tied to another project with id " + project.getId());
+            var employeeAssignedToProject = project.getEmployeeMemberships().stream()
+                    .anyMatch(membership -> membership.getEmployeeId().equals(employeeId));
+
+            if (employeeAssignedToProject) {
+                Date projectStartDate = project.getStartDate();
+                Date projectEndDate = project.getActualEndDate() != null
+                        ? project.getActualEndDate()
+                        : project.getPlannedEndDate();
+
+                if (projectStartDate.before(projectResponseEndDate) && projectResponseStartDate.before(projectEndDate)) {
+                    throw new PlanningConflictException(
+                            "Employee with ID " + employeeId + " is already tied to another project with ID " + project.getId()
+                    );
                 }
             }
         }
+
     }
 
     public ProjectEntity addMemberToProject(Long projectId, Long employeeId, Long qualificationId) {
