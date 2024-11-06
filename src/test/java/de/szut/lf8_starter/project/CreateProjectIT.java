@@ -62,7 +62,7 @@ public class CreateProjectIT extends AbstractIntegrationTest {
         var mockedResponse = new ProjectEntity();
         mockedResponse.setName("Project SSL");
         mockedResponse.setStartDate(Date.valueOf("2024-11-06"));
-        mockedResponse.setEndDate(Date.valueOf("2024-11-07"));
+        mockedResponse.setPlannedEndDate(Date.valueOf("2024-11-07"));
 
         var employee = new EmployeeMembershipEntity();
         employee.setEmployeeId(297L);
@@ -79,7 +79,7 @@ public class CreateProjectIT extends AbstractIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name", is("Project SSL")))
                 .andExpect(jsonPath("$.startDate", is("2024-11-06")))
-                .andExpect(jsonPath("$.endDate", is("2024-11-07")))
+                .andExpect(jsonPath("$.plannedEndDate", is("2024-11-07")))
                 .andExpect(jsonPath("$.employees", hasSize(1)))
                 .andExpect(jsonPath("$.employees[0].employeeId", is(297)))
                 .andExpect(jsonPath("$.employees[0].qualificationId", is(207)));
@@ -90,7 +90,6 @@ public class CreateProjectIT extends AbstractIntegrationTest {
     // TEST: Fehlender Mitarbeiter / Quali, -> 404
 
     // TEST: Zeitkonflikt mitarbeiter
-
 
 
     @Test

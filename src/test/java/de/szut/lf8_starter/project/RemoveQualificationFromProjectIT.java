@@ -41,7 +41,7 @@ public class RemoveQualificationFromProjectIT extends AbstractIntegrationTest {
         project.setId(1L);
         project.setName("Epic Win Project");
         project.setStartDate(Date.valueOf("2024-11-06"));
-        project.setEndDate(Date.valueOf("2024-11-07"));
+        project.setPlannedEndDate(Date.valueOf("2024-11-07"));
         projectRepository.save(project);
 
         qualificationConnectionEntity.setProject(project);
