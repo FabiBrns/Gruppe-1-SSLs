@@ -24,6 +24,8 @@ public class AddQualificationToProjectIT extends AbstractIntegrationTest {
     @MockBean
     private QualificationConnectionRepository qualificationConnectionRepository;
 
+    private ProjectEntity project1;
+
     @BeforeEach
     @Override
     public void setUp() {
@@ -42,7 +44,7 @@ public class AddQualificationToProjectIT extends AbstractIntegrationTest {
         project.setName("Epic Win Project");
         project.setStartDate(Date.valueOf("2024-11-06"));
         project.setPlannedEndDate(Date.valueOf("2024-11-07"));
-        projectRepository.save(project);
+        this.project1 = projectRepository.save(project);
 
         qualificationConnectionEntity.setProject(project);
         qualificationConnectionRepository.save(qualificationConnectionEntity);
@@ -59,9 +61,9 @@ public class AddQualificationToProjectIT extends AbstractIntegrationTest {
     @WithMockUser(roles = "user")
     void addQualificationToProject_Success() throws Exception {
         // when
-        this.mockMvc.perform(MockMvcRequestBuilders.post("/project/{projectId}/qualifications", 1)
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/project/{projectId}/qualifications", project1.getId())
                         .with(csrf())
-                        .param("projectId", String.valueOf(1))
+                        .param("projectId", String.valueOf(project1.getId()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"qualificationId\": 207}"))
 
