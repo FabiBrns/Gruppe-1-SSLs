@@ -40,7 +40,7 @@ public class AddQualificationToProjectIT extends AbstractIntegrationTest {
         project.setId(1L);
         project.setName("Epic Win Project");
         project.setStartDate(Date.valueOf("2024-11-06"));
-        project.setEndDate(Date.valueOf("2024-11-07"));
+        project.setPlannedEndDate(Date.valueOf("2024-11-07"));
         projectRepository.save(project);
 
         qualificationConnectionEntity.setProject(project);
@@ -61,6 +61,18 @@ public class AddQualificationToProjectIT extends AbstractIntegrationTest {
     }
 
     // TEST: 404 bei nicht existierender QualiId
+
+    @Test
+    @WithMockUser(roles = "user")
+    void addQualificationToProject_NotExistingQualificationId() throws Exception {
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/project/{projectId}/qualifications", 1)
+                        .with(csrf())
+                        .param("projectId", String.valueOf(1))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"qualificationId\": 999}"))
+                .andExpect(status().isNotFound());
+    }
+
 
     @Test
     @WithMockUser(roles = "user")
