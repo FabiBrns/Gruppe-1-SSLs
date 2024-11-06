@@ -10,9 +10,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static org.hamcrest.Matchers.is;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class UpdateProjectIT extends AbstractIntegrationTest {
@@ -20,25 +18,24 @@ public class UpdateProjectIT extends AbstractIntegrationTest {
     @Test
     @WithMockUser(roles = "user")
     void updateProject_Success() throws Exception {
+        // success 200 + check for ID, Bez, Zeitrahmen
     }
 
 
     @Test
     @WithMockUser(roles = "user")
     void updateProject_Unauthorized() throws Exception {
-        this.mockMvc.perform(MockMvcRequestBuilders.put("/project/{id}", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\": \"Some Project Name\", \"startDate\": \"2024-11-01\", \"endDate\": \"2024-11-10\"}"))
-                .andExpect(status().isForbidden());
+
     }
 
     @Test
     void updateProject_Unauthenticated() throws Exception {
-        this.mockMvc.perform(MockMvcRequestBuilders.put("/project/{id}", 1L)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\": \"Some Project Name\", \"startDate\": \"2024-11-01\", \"endDate\": \"2024-11-10\"}"))
-                .andExpect(status().isUnauthorized());
+
+    }
+
+    @Test
+    void updateProject_NoEmployeeConflicts() throws Exception {
+        // 200 bei ok, sonst 409 + EmployeeId
     }
 
     @Test

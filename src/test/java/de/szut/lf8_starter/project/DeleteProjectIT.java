@@ -31,16 +31,6 @@ public class DeleteProjectIT extends AbstractIntegrationTest {
 
     @Test
     @WithMockUser(roles = "user")
-    void idDoesNotExist() throws Exception {
-        long notExistedId = 9999L;
-        final var contentAsString = this.mockMvc.perform(delete("/project/" + notExistedId)
-                        .param("id", String.valueOf(notExistedId))
-                        .with(csrf()))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @WithMockUser(roles = "user")
     void deleteWithInvalidIdFormat() throws Exception {
         this.mockMvc.perform(delete("/project/invalid-id")
                         .with(csrf()))

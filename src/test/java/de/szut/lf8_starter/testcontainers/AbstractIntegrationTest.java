@@ -1,12 +1,9 @@
 package de.szut.lf8_starter.testcontainers;
 
-import de.szut.lf8_starter.employeeWebServiceAccessPoint.EmployeeReadService;
 import de.szut.lf8_starter.project.ProjectRepository;
 import de.szut.lf8_starter.project.employeeMembership.EmployeeMembershipRepository;
 import de.szut.lf8_starter.project.qualificationConnection.QualificationConnectionRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -20,6 +20,8 @@ public class GetAllIT extends AbstractIntegrationTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    // TEST: ProjectId, ProjektBezeichnung und Liste der Qualifikationen sowie Start- und Enddatum
+
     @Test
     @WithMockUser(roles = "user")
     void findAll() throws Exception {

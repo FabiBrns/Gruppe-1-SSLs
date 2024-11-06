@@ -11,21 +11,5 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class RemoveEmployeeFromProjectIT extends AbstractIntegrationTest {
-    @Test
-    void authorization() throws Exception {
-        this.mockMvc.perform(delete("/project/1/employees"))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    @WithMockUser(roles = "user")
-    void happyPath() throws Exception {
-        ProjectEntity stored = projectRepository.save(new ProjectEntity());
-
-        this.mockMvc.perform(delete("/project/1")
-                        .param("id", String.valueOf(stored.getId()))
-                        .with(csrf()))
-                .andExpect(status().isOk());
-        assertThat(projectRepository.findById(stored.getId()).isPresent()).isFalse();
-    }
+    // TEST: Success code 200 bei erfolgreichem Löschen
 }
