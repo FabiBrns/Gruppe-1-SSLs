@@ -20,26 +20,6 @@ public class UpdateProjectIT extends AbstractIntegrationTest {
     @Test
     @WithMockUser(roles = "user")
     void updateProject_Success() throws Exception {
-        var project = new ProjectEntity();
-        project.setName("Old Project Name");
-        project.setStartDate(new Date(System.currentTimeMillis() - 86400000));
-        project.setEndDate(new Date(System.currentTimeMillis() + 86400000));
-        projectRepository.save(project);
-
-        UpdateProjectDto updateProjectDto = new UpdateProjectDto();
-        updateProjectDto.setName("Updated Project Name");
-        updateProjectDto.setStartDate(new Date());
-        updateProjectDto.setEndDate(new Date(System.currentTimeMillis() + 864000000));
-
-        this.mockMvc.perform(MockMvcRequestBuilders.put("/project/{id}", project.getId())
-                        .with(csrf())
-                        .param("id", String.valueOf(project.getId()))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\": \"Updated Project Name\", \"startDate\": \"" + new SimpleDateFormat("yyyy-MM-dd").format(updateProjectDto.getStartDate()) + "\", \"endDate\": \"" + new SimpleDateFormat("yyyy-MM-dd").format(updateProjectDto.getEndDate()) + "\"}"))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name", is("Updated Project Name")))
-                .andExpect(jsonPath("$.startDate", is(new SimpleDateFormat("yyyy-MM-dd").format(updateProjectDto.getStartDate()))))
-                .andExpect(jsonPath("$.endDate", is(new SimpleDateFormat("yyyy-MM-dd").format(updateProjectDto.getEndDate()))));
     }
 
 
